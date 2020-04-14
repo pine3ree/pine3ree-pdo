@@ -10,7 +10,7 @@ logging/profiling.
 
 ## Installation
 
-You can install this library using Composer:
+You can install this library using Composer (with "minimum-stability": "dev"):
 
 ```bash
 $ composer require pine3ree/p3-pdo
