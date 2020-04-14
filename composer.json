@@ -1,6 +1,8 @@
 {
     "name": "pine3ree/p3-pdo",
     "description": "A tiny PDO wrapper for lazy instantiation and query profiling",
+    "type": "library",
+    "license": "BSD-3-Clause",
     "keywords": [
         "lazy-pdo",
         "pdo",
