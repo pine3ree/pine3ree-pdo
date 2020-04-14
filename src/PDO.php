@@ -21,11 +21,10 @@ use function md5;
 use function microtime;
 
 /**
- * PDO is a drop-in replacement for the php extesions PDO
+ * PDO is a drop-in replacement for the php extesions PDO.
  *
- * The purpose of this class is to establish a connection on first access
- *
- * @property-read null|\PDO $pdo The wrapped php-ext PDO instance or null
+ * The purpose of this class is to lazily establish a database connection the
+ * first time the connection is needed.
  */
 final class PDO extends \PDO
 {
@@ -349,38 +348,5 @@ final class PDO extends \PDO
             'time'    => $this->log_time,
             'count'   => $this->log_count,
         ];
-    }
-
-    /**
-     * Return the logged query information
-     *
-     * @param bool $combined_reruns Return combined query reruns?
-     * @return array
-     */
-    public function getExecutedQueries(bool $combined_reruns = false): array
-    {
-        return $combined_reruns ? $this->log_reruns : $this->log_queries;
-    }
-
-    /**
-     * Return the total query execution time
-     *
-     * @return float
-     * @internal
-     */
-    public function getTotalExecTime(): float
-    {
-        return $this->log_time;
-    }
-
-    /**
-     * Return the total numer of queries
-     *
-     * @return int
-     * @internal
-     */
-    public function getTotalQueryCount(bool $include_reruns = true): int
-    {
-        return $include_reruns ? $this->log_count : count($this->log_reruns);
     }
 }
