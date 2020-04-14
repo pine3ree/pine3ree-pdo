@@ -1,0 +1,8 @@
+includes:
+	- vendor/phpstan/phpstan-strict-rules/rules.neon
+parameters:
+	fileExtensions:
+		- php
+	reportUnmatchedIgnoredErrors: true
+	ignoreErrors:
+        - '#__construct() does not call parent constructor from PDO#'
