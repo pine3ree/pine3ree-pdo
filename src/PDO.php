@@ -104,11 +104,13 @@ final class PDO extends \PDO
 
         $this->connected = true;
 
-        // set our custom statement-class
-        parent::setAttribute(
-            self::ATTR_STATEMENT_CLASS,
-            [PDOStatement::class, [$this, $this->log]]
-        );
+        // set our custom statement-class if query-log is enabled
+        if ($this->log) {
+            parent::setAttribute(
+                self::ATTR_STATEMENT_CLASS,
+                [PDOStatement::class, [$this]]
+            );
+        }
         // apply preset attributes, if any
         foreach ($this->attributes as $attribute => $value) {
             parent::setAttribute($attribute, $value);
@@ -159,13 +161,11 @@ final class PDO extends \PDO
     {
         $this->connected || $this->connect();
 
-        $this->log && $t0 = microtime(true);
+        if ($this->log) {
+            return $this->profile(__FUNCTION__, $statement, func_get_args());
+        }
 
-        $result = parent::exec($statement);
-
-        $this->log && $this->log($statement, microtime(true) - $t0);
-
-        return $result;
+        return parent::exec($statement);
     }
 
     /**
@@ -217,13 +217,11 @@ final class PDO extends \PDO
     {
         $this->connected || $this->connect();
 
-        $this->log && $t0 = microtime(true);
+        if ($this->log) {
+            return $this->profile(__FUNCTION__, $statement, func_get_args());
+        }
 
-        $stmt = parent::query(...func_get_args());
-
-        $this->log && $this->log($statement, microtime(true) - $t0);
-
-        return $stmt;
+        return parent::query(...func_get_args());
     }
 
     /** {@inheritDoc} */
@@ -239,12 +237,16 @@ final class PDO extends \PDO
      * Store the attribute internally so that if not connected to a database it
      * may be used when the connection is established
      *
-     * Add additional validation for the statement-class attribute
+     * Add additional validation for the statement-class attribute if query-logging
+     * is enabled
      */
     public function setAttribute($attribute, $value): bool
     {
-        // validate ATTR_STATEMENT_CLASS assignment
-        if ($attribute === self::ATTR_STATEMENT_CLASS) {
+        // validate ATTR_STATEMENT_CLASS assignment if query-log is enabled
+        if (
+            $this->log
+            && $attribute === self::ATTR_STATEMENT_CLASS
+        ) {
             $stmt_class = $value[0] ?? null;
             if (
                 !is_string($stmt_class)
@@ -254,7 +256,8 @@ final class PDO extends \PDO
                 )
             ) {
                 throw new PDOException(sprintf(
-                    "The statement class must be either %s` or its subclass, `%s` given",
+                    "When query-logging is enabled the statement-class must be"
+                    . " either %s` or its subclass, `%s` given!",
                     PDOStatement::class,
                     is_string($stmt_class) ? $stmt_class : gettype($stmt_class)
                 ));
@@ -268,6 +271,17 @@ final class PDO extends \PDO
         }
 
         return true;
+    }
+
+    private function profile(string $method, string $sql, array $args)
+    {
+        $t0 = microtime(true);
+
+        $result = parent::{$method}(...$args);
+
+        $this->log($sql, microtime(true) - $t0);
+
+        return $result;
     }
 
     /**
@@ -291,7 +305,7 @@ final class PDO extends \PDO
     ) {
         $result = $this->prepare($statement, $driver_options);
 
-        if ($result instanceof PDOStatement) {
+        if ($result instanceof \PDOStatement) {
             $result->execute($input_parameters);
         }
 

@@ -65,35 +65,40 @@ EOT
         }
     }
 
+    private function createPDO(bool $log = false)
+    {
+        return new PDO($this->dsn, '', '', [], [], $log);
+    }
+
     // phpcs:disable
 
     public function test_method_errorCode_returnsNoErrorStringIfNotConnected()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         self::assertSame('00000', $pdo->errorCode());
     }
 
     public function test_method_errorInfo_returnsNoErrorArrayIfNotConnected()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         self::assertSame(['00000', null, null], $pdo->errorInfo());
     }
 
     public function test_method_lastInsertId_returnsEmptyStringIfNotConnected()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         self::assertSame('', $pdo->lastInsertId());
     }
 
     public function test_method_inTransaction_returnsFalseStringIfNotConnected()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         self::assertFalse($pdo->inTransaction());
     }
 
     public function test_method_beginTransaction_createsDbConnection()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $pdo->beginTransaction();
         self::assertTrue($pdo->isConnected());
     }
@@ -104,7 +109,7 @@ EOT
      */
     public function test_method_commit_triggersWarningIfNotConnected()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $pdo->commit();
     }
 
@@ -114,35 +119,54 @@ EOT
      */
     public function test_method_rollback_triggersWarningIfNotConnected()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $pdo->rollBack();
     }
 
     public function test_method_quote_createsDbConnection()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $pdo->quote('!"£$%&/()=?^^', $pdo::PARAM_STR);
         self::assertTrue($pdo->isConnected());
     }
 
-    public function test_method_prepare_returnsPdoStatementOnSuccess()
+    public function test_method_prepare_returnsP3PdoStatementIfLogEnabled()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO(true);
         $result = $pdo->prepare("SELECT * FROM `user` WHERE `id` = :id");
 
         self::assertInstanceOf(PDOStatement::class, $result);
     }
 
-    public function testInsertRow()
+    public function test_method_prepare_returnsExtPdoStatementIfLogDisabled()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
+        $result = $pdo->prepare("SELECT * FROM `user` WHERE `id` = :id");
+
+        self::assertInstanceOf(\PDOStatement::class, $result);
+    }
+
+    public function test_method_setAttribute_throwsPDOExceptionIfSettingInvalidStatementClassAndLogEnabled()
+    {
+        $pdo = $this->createPDO(true);
+
+        $this->expectException(\PDOException::class);
+        $pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+    }
+
+    /**
+     * @dataProvider provideLogAndExpectedStatementClass
+     */
+    public function testInsertRow(bool $log, string $statementClass)
+    {
+        $pdo = $this->createPDO($log);
 
         $stmt = $pdo->prepare(
             "INSERT INTO `user` (`username`, `email`, `enabled`, `created_at`) "
             . "VALUES (:username, :email, :enabled, :created_at)"
         );
 
-        self::assertInstanceOf(PDOStatement::class, $stmt);
+        self::assertInstanceOf($statementClass, $stmt);
 
         $result = $stmt->execute([
             ':username'   => "username-666",
@@ -155,9 +179,9 @@ EOT
         self::assertSame(1, $stmt->rowCount());
     }
 
-    public function test_method_exec_UpdatesRows()
+    public function test_method_exec_updatesRows()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
 
         // update 1 row
         $result = $pdo->exec(
@@ -172,12 +196,15 @@ EOT
         self::assertSame(2, $result);
     }
 
-    public function test_method_query_usingSelectReturnRows()
+    /**
+     * @dataProvider provideLogAndExpectedStatementClass
+     */
+    public function test_method_query_usingSelectReturnRows(bool $log, string $statementClass)
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $stmt = $pdo->query("SELECT * FROM `user`");
 
-        self::assertInstanceOf(PDOStatement::class, $stmt);
+        self::assertInstanceOf(\PDOStatement::class, $stmt);
 
         $rows = $stmt->fetchAll($pdo::FETCH_ASSOC);
 
@@ -200,7 +227,7 @@ EOT
 
     public function test_method_run_preparesAndExecutesStatement()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $stmt = $pdo->run("SELECT * FROM `user` WHERE `id` = :id", [':id' => 9]);
         $row = $stmt->fetch($pdo::FETCH_ASSOC);
 
@@ -219,7 +246,7 @@ EOT
 
     public function test_method_run_returnsFalseForInvalidQueryWithErrorModeSilent()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $pdo->setAttribute($pdo::ATTR_ERRMODE, $pdo::ERRMODE_SILENT);
         $result = $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
 
@@ -231,7 +258,7 @@ EOT
      */
     public function test_method_run_triggersWarningForInvalidQueryWithErrorModeWarning()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $pdo->setAttribute($pdo::ATTR_ERRMODE, $pdo::ERRMODE_WARNING);
         $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
@@ -241,7 +268,7 @@ EOT
      */
     public function test_method_run_throwsPDOExceptionForInvalidQueryWithErrorModeException()
     {
-        $pdo = new PDO($this->dsn);
+        $pdo = $this->createPDO();
         $pdo->setAttribute($pdo::ATTR_ERRMODE, $pdo::ERRMODE_EXCEPTION);
         $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
@@ -290,6 +317,13 @@ EOT
 
     // phpcs:enable
 
+    public function provideLogAndExpectedStatementClass()
+    {
+        return [
+            [false, \PDOStatement::class],
+            [true, PDOStatement::class],
+        ];
+    }
 
     public function tearDown()
     {
