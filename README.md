@@ -23,7 +23,7 @@ Continue reading below for additional methods.
 
 ### How to enable query-logging
 
-Query logging&/profiling can be enabled via the `$log` constructor argument:
+Query logging/profiling can be enabled via the `$log` constructor argument:
 ```php
 $pdo = new P3\PDO(
     $dsn = 'slite:my-db.sqlite3',
