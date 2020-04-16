@@ -36,13 +36,8 @@
         }
     },
     "scripts": {
-        "check": [
-            "@cs-check",
-            "@test"
-        ],
-        "cs-check": "phpcs",
-        "cs-fix": "phpcbf",
-        "phpstan": "phpstan analyze -c phpstan.neon ./src",
+        "check-cs": "phpcs",
+        "fix-cs": "phpcbf",
         "test": "phpunit --colors=always"
     }
 }

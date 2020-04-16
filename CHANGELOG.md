@@ -3,6 +3,35 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 0.3.0 - 2020-04-16
+
+The custom P3\PDOStatement class is now used only if query-logging is enabled.
+
+### Added
+
+- added private method for internal query profiling
+
+- updated setAttribute statement class validation
+
+- added test cases
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Removed internal PDOStatement `$log` property as form now on this class is
+  only used when profiling.
+
+- Removed composer shortcuts `cs-check`, `cs-fix` in favor of `check-cs`, `fix-cs`
+  Removed `check` shortcut.
+
+### Fixed
+
+- Fixed README file query-logging constructor example
+
+
 ## 0.2.0 - 2020-04-14
 
 ### Added

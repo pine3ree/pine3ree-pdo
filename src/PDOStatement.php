@@ -17,7 +17,7 @@ use function microtime;
 /**
  * {@inheritDoc}
  *
- * Logs query execution info via the calling P3\PDO instance
+ * Log and profile query execution info via the calling P3\PDO instance
  */
 class PDOStatement extends \PDOStatement
 {
@@ -26,32 +26,23 @@ class PDOStatement extends \PDOStatement
      */
     private $pdo;
 
-    /**
-     * @var bool Is query-logging?
-     */
-    private $log;
-
-
-    private function __construct(PDO $pdo, bool $log = false)
+    private function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-        $this->log = $log;
     }
 
     /** {@inheritDoc} */
     public function execute($input_parameters = null): bool
     {
-        $this->log && $t0 = microtime(true);
+        $t0 = microtime(true);
 
         $result = parent::execute($input_parameters);
 
-        if ($this->log) {
-            $this->pdo->log(
-                $this->queryString,
-                microtime(true) - $t0,
-                $input_parameters
-            );
-        }
+        $this->pdo->log(
+            $this->queryString,
+            microtime(true) - $t0,
+            $input_parameters
+        );
 
         return $result;
     }
