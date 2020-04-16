@@ -30,6 +30,7 @@ $pdo = new P3\PDO(
     $username = '',
     $password = '',
     $options = [],
+    $attributes = [],
     $log = true // enable profiling
 );
 ```

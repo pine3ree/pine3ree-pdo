@@ -3,6 +3,25 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 0.2.1 - 2020-04-16
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Fixed README file constructor example (missing `$attributes` argument).
+
+
 ## 0.2.0 - 2020-04-14
 
 ### Added
