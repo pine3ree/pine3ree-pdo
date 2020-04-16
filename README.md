@@ -22,6 +22,20 @@ $ composer require pine3ree/p3-pdo
 
 Continue reading below for additional methods
 
+### How to enable query-logging
+
+Query logging/profiling can be enabled via the `$log` constructor argument:
+```php
+$pdo = new P3\PDO(
+    $dsn = 'slite:my-db.sqlite3',
+    $username = '',
+    $password = '',
+    $options = [],
+    $attributes = [],
+    $log = true // enable profiling
+);
+```
+You can retrieve the logged information using `P3\PDO::getLog()` method.
 
 ### Additional methods
 

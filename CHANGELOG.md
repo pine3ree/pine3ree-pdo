@@ -2,6 +2,25 @@
 
 Changes are documented in reverse chronological order by release.
 
+## 0.1.2 - 2020-04-16
+
+### Added
+
+- Add constructor example in README file
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+
 ## 0.1.1 - 2020-04-14
 
 ### Added
