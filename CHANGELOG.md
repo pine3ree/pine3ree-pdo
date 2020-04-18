@@ -3,6 +3,25 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 0.4.1 - 2020-04-18
+
+### Added
+
+- Fixed and readded static analysis
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+
 ## 0.4.0 - 2020-04-18
 
 ### Added
