@@ -18,6 +18,7 @@ matrix:
     - php: 7.0
       env:
         - DEPS=latest
+        - PHPSTAN=true
 
     - php: 7.1
       env:
@@ -26,6 +27,7 @@ matrix:
       env:
         - DEPS=latest
         - PHPCS=true
+        - PHPSTAN=true
 
     - php: 7.2
       env:
@@ -34,6 +36,7 @@ matrix:
       env:
         - DEPS=latest
         - PHPCS=true
+        - PHPSTAN=true
 
     - php: 7.3
       env:
@@ -42,6 +45,7 @@ matrix:
       env:
         - DEPS=latest
         - PHPCS=true
+        - PHPSTAN=true
 
     - php: 7.4
       env:
@@ -50,6 +54,7 @@ matrix:
       env:
         - DEPS=latest
         - PHPCS=true
+        - PHPSTAN=true
 
 before_install:
 
@@ -61,7 +66,8 @@ install:
   - cat phpunit.xml.dist
 
 script:
-  - if [[ $PHPCS == 'true' ]]; then composer check-cs ; fi
+  - if [[ $PHPCS == 'true' ]]; then composer phpcs ; fi
+  - if [[ $PHPSTAN == 'true' ]]; then composer phpstan ; fi
 
 after_script:
 
