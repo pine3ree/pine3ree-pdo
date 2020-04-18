@@ -3,6 +3,28 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 0.4.0 - 2020-04-18
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Removed the $attributes argument in constructor to make the signature closer
+  to ext-pdo
+
+- The previously public @internal method `connect()` is now private
+
+### Fixed
+
+- Nothing.
+
+
 ## 0.3.0 - 2020-04-16
 
 The custom P3\PDOStatement class is now used only if query-logging is enabled.

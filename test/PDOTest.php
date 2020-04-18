@@ -67,7 +67,7 @@ EOT
 
     private function createPDO(bool $log = false)
     {
-        return new PDO($this->dsn, '', '', [], [], $log);
+        return new PDO($this->dsn, '', '', [], $log);
     }
 
     // phpcs:disable
@@ -126,7 +126,7 @@ EOT
     public function test_method_quote_createsDbConnection()
     {
         $pdo = $this->createPDO();
-        $pdo->quote('!"£$%&/()=?^^', $pdo::PARAM_STR);
+        $pdo->quote('!"£$%&/()=?^^', PDO::PARAM_STR);
         self::assertTrue($pdo->isConnected());
     }
 
@@ -206,7 +206,7 @@ EOT
 
         self::assertInstanceOf(\PDOStatement::class, $stmt);
 
-        $rows = $stmt->fetchAll($pdo::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         self::assertTrue(is_array($rows));
         self::assertSame(10, count($rows));
@@ -229,7 +229,7 @@ EOT
     {
         $pdo = $this->createPDO();
         $stmt = $pdo->run("SELECT * FROM `user` WHERE `id` = :id", [':id' => 9]);
-        $row = $stmt->fetch($pdo::FETCH_ASSOC);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         self::assertArrayHasKey('id', $row);
         self::assertArrayHasKey('username', $row);
@@ -247,7 +247,7 @@ EOT
     public function test_method_run_returnsFalseForInvalidQueryWithErrorModeSilent()
     {
         $pdo = $this->createPDO();
-        $pdo->setAttribute($pdo::ATTR_ERRMODE, $pdo::ERRMODE_SILENT);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
         $result = $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
 
         self::assertFalse($result);
@@ -259,7 +259,7 @@ EOT
     public function test_method_run_triggersWarningForInvalidQueryWithErrorModeWarning()
     {
         $pdo = $this->createPDO();
-        $pdo->setAttribute($pdo::ATTR_ERRMODE, $pdo::ERRMODE_WARNING);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
         $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
@@ -269,13 +269,13 @@ EOT
     public function test_method_run_throwsPDOExceptionForInvalidQueryWithErrorModeException()
     {
         $pdo = $this->createPDO();
-        $pdo->setAttribute($pdo::ATTR_ERRMODE, $pdo::ERRMODE_EXCEPTION);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
     public function testQueryLogger()
     {
-        $pdo = new PDO($this->dsn, '', '', [], [], true);
+        $pdo = $this->createPDO(true);
 
         $sql1 = "SELECT * FROM `user` WHERE `id` = :id";
         $sql2 = "SELECT `username` FROM `user` WHERE `id` = :id";

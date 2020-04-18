@@ -41,7 +41,7 @@ final class PDO extends \PDO
     private $options;
 
     /** @var array */
-    private $attributes;
+    private $attributes = [];
 
     /** @var bool */
     private $connected = false;
@@ -71,25 +71,22 @@ final class PDO extends \PDO
         string $username = '',
         string $password = '',
         array $options = [],
-        array $attributes = [],
         bool $log = false
     ) {
         $this->dsn = $dsn;
         $this->username = $username;
         $this->password = $password;
         $this->options = $options;
-        $this->attributes = $attributes;
         $this->log = $log;
     }
 
     /**
-     * Establish a database connection by calling parent constructor
+     * Establish a database connection by calling the parent constructor
      *
      * @return bool
      * @throws \PDOException
-     * @internal
      */
-    public function connect(): bool
+    private function connect(): bool
     {
         if ($this->connected) {
             return true;
@@ -111,6 +108,7 @@ final class PDO extends \PDO
                 [PDOStatement::class, [$this]]
             );
         }
+
         // apply preset attributes, if any
         foreach ($this->attributes as $attribute => $value) {
             parent::setAttribute($attribute, $value);
@@ -243,13 +241,11 @@ final class PDO extends \PDO
     public function setAttribute($attribute, $value): bool
     {
         // validate ATTR_STATEMENT_CLASS assignment if query-log is enabled
-        if (
-            $this->log
+        if ($this->log
             && $attribute === self::ATTR_STATEMENT_CLASS
         ) {
             $stmt_class = $value[0] ?? null;
-            if (
-                !is_string($stmt_class)
+            if (!is_string($stmt_class)
                 || !(
                     $stmt_class === PDOStatement::class
                     || is_subclass_of($stmt_class, PDOStatement::class)
