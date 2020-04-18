@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @package     p3-pdo
- * @see         https://github.com/pine3ree/p3-pdo for the canonical source repository
- * @copyright   https://github.com/pine3ree/p3-pdo/blob/master/COPYRIGHT.md
- * @author      pine3ree https://github.com/pine3ree
- * @license     https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
+ * @package   p3-pdo
+ * @see       https://github.com/pine3ree/p3-pdo for the canonical source repository
+ * @copyright https://github.com/pine3ree/p3-pdo/blob/master/COPYRIGHT.md
+ * @author    pine3ree https://github.com/pine3ree
+ * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
 namespace P3\PDOTest;
@@ -37,12 +37,12 @@ final class PDOTest extends TestCase
         $pdo = new \PDO($this->dsn);
         $pdo->exec(<<<EOT
 CREATE TABLE `user` (
-	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
-	`username`	TEXT UNIQUE,
-	`email`	TEXT UNIQUE,
-	`enabled`	INTEGER DEFAULT '0',
-	`created_at`	TEXT DEFAULT '0000-00-00 00:00:00',
-	`updated_at`	TEXT DEFAULT '0000-00-00 00:00:00'
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `username` TEXT UNIQUE,
+    `email` TEXT UNIQUE,
+    `enabled` INTEGER DEFAULT '0',
+    `created_at` TEXT DEFAULT '0000-00-00 00:00:00',
+    `updated_at` TEXT DEFAULT '0000-00-00 00:00:00'
 );
 EOT
         );
