@@ -34,24 +34,6 @@ class PDOStatement extends \PDOStatement
     }
 
     /** {@inheritDoc} */
-    public function execute($input_parameters = null): bool
-    {
-        $t0 = microtime(true);
-
-        $result = parent::execute($input_parameters);
-
-        $this->pdo->log(
-            $this->queryString,
-            microtime(true) - $t0,
-            $input_parameters ?? $this->params
-        );
-
-        $this->params = [];
-
-        return $result;
-    }
-
-    /** {@inheritDoc} */
     public function bindValue($parameter, $value, $data_type = null): bool
     {
         $result = parent::bindValue($parameter, $value, $data_type);
@@ -76,6 +58,24 @@ class PDOStatement extends \PDOStatement
         if ($result) {
             $this->params[$parameter] = $value = $variable;
         }
+
+        return $result;
+    }
+
+    /** {@inheritDoc} */
+    public function execute($input_parameters = null): bool
+    {
+        $t0 = microtime(true);
+
+        $result = parent::execute($input_parameters);
+
+        $this->pdo->log(
+            $this->queryString,
+            microtime(true) - $t0,
+            $input_parameters ?? $this->params
+        );
+
+        $this->params = [];
 
         return $result;
     }
