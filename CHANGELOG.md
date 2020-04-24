@@ -3,6 +3,25 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 0.5.0 - 2020-04-24
+
+### Added
+
+- Added logging for parameter-binding in pdo-statement
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+
 ## 0.4.1 - 2020-04-18
 
 ### Added
