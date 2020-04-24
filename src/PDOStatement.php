@@ -52,7 +52,7 @@ class PDOStatement extends \PDOStatement
     }
 
     /** {@inheritDoc} */
-    public function bindValue($parameter, $value, int $data_type = PDO::PARAM_STR): bool
+    public function bindValue($parameter, $value, $data_type = null): bool
     {
         $result = parent::bindValue($parameter, $value, $data_type);
 
@@ -67,8 +67,8 @@ class PDOStatement extends \PDOStatement
     public function bindParam(
         $parameter,
         &$variable,
-        int $data_type = PDO::PARAM_STR,
-        int $length = null,
+        $data_type = PDO::PARAM_STR,
+        $length = null,
         $driver_options = null
     ): bool {
         $result = parent::bindParam($parameter, $variable, $data_type);
