@@ -26,6 +26,8 @@ class PDOStatement extends \PDOStatement
      */
     private $pdo;
 
+    private $params = [];
+
     private function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
@@ -41,8 +43,39 @@ class PDOStatement extends \PDOStatement
         $this->pdo->log(
             $this->queryString,
             microtime(true) - $t0,
-            $input_parameters
+            $input_parameters ?? $this->params
         );
+
+        $this->params = [];
+
+        return $result;
+    }
+
+    /** {@inheritDoc} */
+    public function bindValue($parameter, $value, int $data_type = PDO::PARAM_STR): bool
+    {
+        $result = parent::bindValue($parameter, $value, $data_type);
+
+        if ($result) {
+            $this->params[$parameter] = $value;
+        }
+
+        return $result;
+    }
+
+    /** {@inheritDoc} */
+    public function bindParam(
+        $parameter,
+        &$variable,
+        int $data_type = PDO::PARAM_STR,
+        int $length = null,
+        $driver_options = null
+    ): bool {
+        $result = parent::bindParam($parameter, $variable, $data_type);
+
+        if ($result) {
+            $this->params[$parameter] = $value = $variable;
+        }
 
         return $result;
     }
