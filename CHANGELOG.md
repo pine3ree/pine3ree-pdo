@@ -3,6 +3,26 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 0.5.1 - 2020-05-11
+
+### Added
+
+- Added the possibility of retrieving the database driver name from the dsn
+  without establishing a connection
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+
 ## 0.5.0 - 2020-04-24
 
 ### Added
