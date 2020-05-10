@@ -13,6 +13,7 @@ namespace P3;
 use P3\PDOStatement;
 use PDOException;
 
+use function explode;
 use function func_get_args;
 use function gettype;
 use function is_string;
@@ -175,6 +176,10 @@ final class PDO extends \PDO
     {
         if ($this->connected) {
             return parent::getAttribute($attribute);
+        }
+
+        if ($attribute === PDO::ATTR_DRIVER_NAME) {
+            return explode(':', $this->dsn)[0];
         }
 
         return $this->attributes[$attribute] ?? null;
