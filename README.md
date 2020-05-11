@@ -4,7 +4,8 @@
 
 *A lazy-loading PDO drop-in replacement!*
 
-p3-PDO extends PHP ext-PDO in order to provide on demand connection and query logging/profiling.
+p3-PDO extends PHP ext-PDO in order to provide on demand connection, connection
+expiration with auto-reconnect and query logging/profiling.
 
 
 ## Installation
@@ -30,11 +31,26 @@ $pdo = new P3\PDO(
     $username = '',
     $password = '',
     $options = [],
+    $ttl = 0, // enable auto-reconnection after ttl seconds?
     $log = true // enable profiling
 );
 ```
 You can retrieve the logged information using `P3\PDO::getLog()` method.
 
+### How to enable auto-reconnect/connection-expiration
+
+The auto-reconnect feature can be enabled via the `$ttl` constructor argument:
+
+```php
+$pdo = new P3\PDO(
+    $dsn = 'slite:my-db.sqlite3',
+    $username = '',
+    $password = '',
+    $options = [],
+    $ttl = 6, // drops the current connection after 6 seconds and establish a new one
+    $log = false
+);
+```
 ### Additional methods
 
 #### P3\PDO::run(): PDOStatement|false

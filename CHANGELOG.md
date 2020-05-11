@@ -3,6 +3,27 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 0.6.0 - 2020-05-11
+
+### Added
+
+- Added $ttl property to enable automatic reconnection after ttl seconds
+- P3\PDO now wraps an internal \PDO instance but stills extends the \PDO class
+- Added `$dsn`, `$connections` and `$ttl` to the log-data
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- The getLOG() array 'queries' key has been replaced by the 'statements' key
+
+### Fixed
+
+- Nothing.
+
+
 ## 0.5.1 - 2020-05-11
 
 ### Added
