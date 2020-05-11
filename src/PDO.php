@@ -186,7 +186,7 @@ final class PDO extends \PDO
     public function exec($statement): int
     {
         if ($this->log) {
-            return $this->profile(__FUNCTION__, $statement, func_get_args());
+            return $this->profile(__FUNCTION__, $statement, [$statement]);
         }
 
         return $this->pdo()->exec($statement);
@@ -330,14 +330,14 @@ final class PDO extends \PDO
      * @link https://www.php.net/manual/en/pdo.prepare.php
      * @link https://www.php.net/manual/en/pdostatement.execute.php
      */
-    public function run(
+    public function execute(
         string $statement,
         array $input_parameters = [],
         array $driver_options = []
     ) {
         $stmt = $this->prepare($statement, $driver_options);
-        if ($stmt instanceof \PDOStatement) {
-            $stmt->execute($input_parameters);
+        if (false  === $stmt || false === $stmt->execute($input_parameters)) {
+            return false;
         }
 
         return $stmt;

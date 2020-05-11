@@ -53,11 +53,12 @@ $pdo = new P3\PDO(
 ```
 ### Additional methods
 
-#### P3\PDO::run(): PDOStatement|false
+#### P3\PDO::execute(): PDOStatement|false
 ```
 P3\PDO::run(string $statement, array $input_parameters = [], array $driver_options = [])
 ```
-combines `\PDO::prepare()` and `\PDOStatement::execute()` into one method call.
+combines `\PDO::prepare()` and `\PDOStatement::execute()` into one method call,
+returning `false` if either thr statement preparation or execution fails.
 
 #### P3\PDO::isConnected(): bool
 
