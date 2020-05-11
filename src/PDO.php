@@ -28,11 +28,6 @@ use function time;
  *
  * The purpose of this class is to lazily establish a database connection the
  * first time the connection is needed.
- *
- * @property-read string $dsn The database DSN
- * @property-read string $connections The number of database connections established
- * @property-read int $ttl The database connection expiry time in seconds
- * @property-read array $log The logged information
  */
 final class PDO extends \PDO
 {
@@ -399,25 +394,7 @@ final class PDO extends \PDO
             'count'       => $this->log_count,
             'connections' => $this->connections,
             'ttl'         => $this->ttl,
+            'dsn'         => $this->dsn,
         ];
-    }
-
-    public function __get(string $name)
-    {
-        if ($name === 'dsn') {
-            return $this->dsn;
-        }
-        if ($name === 'ttl') {
-            return $this->ttl;
-        }
-        if ($name === 'connections') {
-            return $this->connections;
-        }
-        if ($name === 'log') {
-            return $this->getLog();
-        }
-
-        // do not expose the internal pdo-connection
-        return null;
     }
 }
