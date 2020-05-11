@@ -65,14 +65,14 @@ EOT
         }
     }
 
-    private function createPDO(bool $log = false)
+    private function createPDO(int $ttl = 0, bool $log = false)
     {
-        return new PDO($this->dsn, '', '', [], $log);
+        return new PDO($this->dsn, '', '', [], $ttl, $log);
     }
 
-    private function createPDOfromDSN(string $dsn, bool $log = false)
+    private function createPDOfromDSN(string $dsn, int $ttl = 0, bool $log = false)
     {
-        return new PDO($dsn, '', '', [], $log);
+        return new PDO($dsn, '', '', [], $ttl, $log);
     }
 
     // phpcs:disable
@@ -117,26 +117,6 @@ EOT
         self::assertTrue($pdo->isConnected());
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     * @expectedExceptionMessage No error: PDO constructor was not called
-     */
-    public function test_method_commit_triggersWarningIfNotConnected()
-    {
-        $pdo = $this->createPDO();
-        $pdo->commit();
-    }
-
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     * @expectedExceptionMessage No error: PDO constructor was not called
-     */
-    public function test_method_rollback_triggersWarningIfNotConnected()
-    {
-        $pdo = $this->createPDO();
-        $pdo->rollBack();
-    }
-
     public function test_method_quote_createsDbConnection()
     {
         $pdo = $this->createPDO();
@@ -146,7 +126,7 @@ EOT
 
     public function test_method_prepare_returnsP3PdoStatementIfLogEnabled()
     {
-        $pdo = $this->createPDO(true);
+        $pdo = $this->createPDO(0, true);
         $result = $pdo->prepare("SELECT * FROM `user` WHERE `id` = :id");
 
         self::assertInstanceOf(PDOStatement::class, $result);
@@ -162,7 +142,7 @@ EOT
 
     public function test_method_setAttribute_throwsPDOExceptionIfSettingInvalidStatementClassAndLogEnabled()
     {
-        $pdo = $this->createPDO(true);
+        $pdo = $this->createPDO(0, true);
 
         $this->expectException(\PDOException::class);
         $pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
@@ -173,7 +153,7 @@ EOT
      */
     public function testInsertRow(bool $log, string $statementClass)
     {
-        $pdo = $this->createPDO($log);
+        $pdo = $this->createPDO(0, $log);
 
         $stmt = $pdo->prepare(
             "INSERT INTO `user` (`username`, `email`, `enabled`, `created_at`) "
@@ -287,9 +267,9 @@ EOT
         $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
-    public function testQueryLogger()
+    public function testStatementLogger()
     {
-        $pdo = $this->createPDO(true);
+        $pdo = $this->createPDO(0, true);
 
         $sql1 = "SELECT * FROM `user` WHERE `id` = :id";
         $sql2 = "SELECT `username` FROM `user` WHERE `id` = :id";
@@ -304,8 +284,8 @@ EOT
 
         $log = $pdo->getLog();
 
-        $queries = $log['queries'];
-        $reruns  = $log['reruns'];
+        $stmnts = $log['statements'];
+        $reruns = $log['reruns'];
 
         self::assertSame(6, $log['count']);
         self::assertSame(3, count($reruns));
@@ -314,19 +294,19 @@ EOT
         self::assertSame(2, $reruns[md5($sql2)]['iter']);
         self::assertSame(1, $reruns[md5($sql3)]['iter']);
 
-        self::assertSame(1, $queries[0]['iter']);
-        self::assertSame(2, $queries[1]['iter']);
-        self::assertSame(1, $queries[2]['iter']);
-        self::assertSame(3, $queries[3]['iter']);
-        self::assertSame(2, $queries[4]['iter']);
-        self::assertSame(1, $queries[5]['iter']);
+        self::assertSame(1, $stmnts[0]['iter']);
+        self::assertSame(2, $stmnts[1]['iter']);
+        self::assertSame(1, $stmnts[2]['iter']);
+        self::assertSame(3, $stmnts[3]['iter']);
+        self::assertSame(2, $stmnts[4]['iter']);
+        self::assertSame(1, $stmnts[5]['iter']);
 
-        self::assertSame(1, $queries[0]['params'][':id']);
-        self::assertSame(2, $queries[1]['params'][':id']);
-        self::assertSame(3, $queries[2]['params'][':id']);
-        self::assertSame(4, $queries[3]['params'][':id']);
-        self::assertSame(5, $queries[4]['params'][':id']);
-        self::assertSame(6, $queries[5]['params'][':id']);
+        self::assertSame(1, $stmnts[0]['params'][':id']);
+        self::assertSame(2, $stmnts[1]['params'][':id']);
+        self::assertSame(3, $stmnts[2]['params'][':id']);
+        self::assertSame(4, $stmnts[3]['params'][':id']);
+        self::assertSame(5, $stmnts[4]['params'][':id']);
+        self::assertSame(6, $stmnts[5]['params'][':id']);
     }
 
     // phpcs:enable
