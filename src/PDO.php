@@ -2,6 +2,7 @@
 
 /**
  * @package   p3-pdo
+ * @version   0.5.1
  * @see       https://github.com/pine3ree/p3-pdo for the canonical source repository
  * @copyright https://github.com/pine3ree/p3-pdo/blob/master/COPYRIGHT.md
  * @author    pine3ree https://github.com/pine3ree
@@ -10,8 +11,8 @@
 
 namespace P3;
 
+use InvalidArgumentException;
 use P3\PDOStatement;
-use PDOException;
 
 use function explode;
 use function func_get_args;
@@ -20,15 +21,25 @@ use function is_string;
 use function is_subclass_of;
 use function md5;
 use function microtime;
+use function sprintf;
+use function time;
 
 /**
- * PDO is a drop-in replacement for the php extesions PDO.
+ * PDO is a drop-in replacement for the php-extension "ext-pdo".
  *
  * The purpose of this class is to lazily establish a database connection the
  * first time the connection is needed.
+ *
+ * @property-read string $dsn The database DSN
+ * @property-read string $connections The number of database connections established
+ * @property-read int $ttl The database connection expiry time in seconds
+ * @property-read array $log The logged information
  */
 final class PDO extends \PDO
 {
+    /** @var \PDO|null */
+    private $pdo;
+
     /** @var string */
     private $dsn;
 
@@ -44,14 +55,20 @@ final class PDO extends \PDO
     /** @var array */
     private $attributes = [];
 
-    /** @var bool */
-    private $connected = false;
+    /** @var int */
+    private $time_connected = 0;
+
+    /** @var int */
+    private $connections = 0;
+
+    /** @var int */
+    private $ttl = 0;
 
     /** @var bool */
     private $log;
 
     /** @var array */
-    private $log_queries = [];
+    private $log_statements = [];
 
     /** @var array */
     private $log_reruns = [];
@@ -66,45 +83,56 @@ final class PDO extends \PDO
      * {@inheritDoc}
      *
      * @param bool $log Activate query-logging/profiling?
+     * @param int $ttl The connection expiry time in seconds, 0 for no-expire
      */
     public function __construct(
         string $dsn,
         string $username = '',
         string $password = '',
         array $options = [],
+        int $ttl = 0,
         bool $log = false
     ) {
         $this->dsn = $dsn;
         $this->username = $username;
         $this->password = $password;
         $this->options = $options;
+        $this->ttl = $ttl;
         $this->log = $log;
     }
 
     /**
-     * Establish a database connection by calling the parent constructor
+     * Establish or re-establish a pdo-database connection and return it
      *
-     * @return bool
+     * @return \PDO
      * @throws \PDOException
      */
-    private function connect(): bool
+    private function pdo(): \PDO
     {
-        if ($this->connected) {
-            return true;
+        if (isset($this->pdo)) {
+            if ($this->ttl > 0
+                && time() - $this->time_connected > $this->ttl
+                && !$this->pdo->inTransaction()
+            ) {
+                $this->pdo = null;
+            } else {
+                return $this->pdo;
+            }
         }
 
-        parent::__construct(
+        $this->pdo = new \PDO(
             $this->dsn,
             $this->username,
             $this->password,
             $this->options
         );
 
-        $this->connected = true;
+        $this->time_connected = time();
+        $this->connections += 1;
 
         // set our custom statement-class if query-log is enabled
         if ($this->log) {
-            parent::setAttribute(
+            $this->pdo->setAttribute(
                 self::ATTR_STATEMENT_CLASS,
                 [PDOStatement::class, [$this]]
             );
@@ -112,10 +140,10 @@ final class PDO extends \PDO
 
         // apply preset attributes, if any
         foreach ($this->attributes as $attribute => $value) {
-            parent::setAttribute($attribute, $value);
+            $this->pdo->setAttribute($attribute, $value);
         }
 
-        return true;
+        return $this->pdo;
     }
 
     /**
@@ -125,46 +153,49 @@ final class PDO extends \PDO
      */
     public function isConnected(): bool
     {
-        return $this->connected;
+        return isset($this->pdo);
     }
 
     /** {@inheritDoc} */
     public function beginTransaction(): bool
     {
-        $this->connected || $this->connect();
-        return parent::beginTransaction();
+        return $this->pdo()->beginTransaction();
+    }
+
+    /** {@inheritDoc} */
+    public function commit(): bool
+    {
+        return $this->pdo()->commit();
     }
 
     /** {@inheritDoc} */
     public function errorCode(): string
     {
-        if (!$this->connected) {
-            return '00000';
+        if (isset($this->pdo)) {
+            return $this->pdo->errorCode();
         }
 
-        return parent::errorCode();
+        return '00000';
     }
 
     /** {@inheritDoc} */
     public function errorInfo(): array
     {
-        if (!$this->connected) {
-            return ['00000', null, null];
+        if (isset($this->pdo)) {
+            return $this->pdo->errorInfo();
         }
 
-        return parent::errorInfo();
+        return ['00000', null, null];
     }
 
     /** {@inheritDoc} */
     public function exec($statement): int
     {
-        $this->connected || $this->connect();
-
         if ($this->log) {
             return $this->profile(__FUNCTION__, $statement, func_get_args());
         }
 
-        return parent::exec($statement);
+        return $this->pdo()->exec($statement);
     }
 
     /**
@@ -174,12 +205,18 @@ final class PDO extends \PDO
      */
     public function getAttribute($attribute)
     {
-        if ($this->connected) {
-            return parent::getAttribute($attribute);
+        if (isset($this->pdo)) {
+            return $this->pdo->getAttribute($attribute);
         }
 
-        if ($attribute === PDO::ATTR_DRIVER_NAME) {
-            return explode(':', $this->dsn)[0];
+        switch ($attribute) {
+            case \PDO::ATTR_DRIVER_NAME:
+                return explode(':', $this->dsn)[0];
+
+            case \PDO::ATTR_CONNECTION_STATUS:
+            case \PDO::ATTR_SERVER_INFO:
+            case \PDO::ATTR_SERVER_VERSION:
+                return '';
         }
 
         return $this->attributes[$attribute] ?? null;
@@ -188,28 +225,27 @@ final class PDO extends \PDO
     /** {@inheritDoc} */
     public function inTransaction(): bool
     {
-        if (!$this->connected) {
-            return false;
+        if (isset($this->pdo)) {
+            return $this->pdo->inTransaction();
         }
 
-        return parent::inTransaction();
+        return false;
     }
 
     /** {@inheritDoc} */
     public function lastInsertId($name = null): string
     {
-        if (!$this->connected) {
-            return '';
+        if (isset($this->pdo)) {
+            return $this->pdo->lastInsertId($name);
         }
 
-        return parent::lastInsertId($name);
+        return '';
     }
 
     /** {@inheritDoc} */
     public function prepare($statement, $driver_options = [])
     {
-        $this->connected || $this->connect();
-        return parent::prepare($statement, $driver_options);
+        return $this->pdo()->prepare($statement, $driver_options);
     }
 
     /**
@@ -218,20 +254,23 @@ final class PDO extends \PDO
      */
     public function query(string $statement, int $fetch_style = null, $fetch_argument = null)
     {
-        $this->connected || $this->connect();
-
         if ($this->log) {
             return $this->profile(__FUNCTION__, $statement, func_get_args());
         }
 
-        return parent::query(...func_get_args());
+        return $this->pdo()->query(...func_get_args());
     }
 
     /** {@inheritDoc} */
     public function quote($string, $paramtype = null): string
     {
-        $this->connected || $this->connect();
-        return parent::quote($string, $paramtype);
+        return $this->pdo()->quote($string, $paramtype);
+    }
+
+    /** {@inheritDoc} */
+    public function rollBack(): bool
+    {
+        return $this->pdo()->rollBack();
     }
 
     /**
@@ -256,7 +295,7 @@ final class PDO extends \PDO
                     || is_subclass_of($stmt_class, PDOStatement::class)
                 )
             ) {
-                throw new PDOException(sprintf(
+                throw new \PDOException(sprintf(
                     "When query-logging is enabled the statement-class must be"
                     . " either %s` or its subclass, `%s` given!",
                     PDOStatement::class,
@@ -267,8 +306,8 @@ final class PDO extends \PDO
 
         $this->attributes[$attribute] = $value;
 
-        if ($this->connected) {
-            return parent::setAttribute($attribute, $value);
+        if (isset($this->pdo)) {
+            return $this->pdo->setAttribute($attribute, $value);
         }
 
         return true;
@@ -277,16 +316,14 @@ final class PDO extends \PDO
     private function profile(string $method, string $sql, array $args)
     {
         $t0 = microtime(true);
-
-        $result = parent::{$method}(...$args);
-
+        $result = $this->pdo()->{$method}(...$args);
         $this->log($sql, microtime(true) - $t0);
 
         return $result;
     }
 
     /**
-     * Prepare and execute a query
+     * Prepare and execute a sql-statement
      *
      * @param string $statement The SQL expression possibly including parameter markers
      * @param array $input_parameters Substitution parameters for the markers, if any
@@ -304,17 +341,16 @@ final class PDO extends \PDO
         array $input_parameters = [],
         array $driver_options = []
     ) {
-        $result = $this->prepare($statement, $driver_options);
-
-        if ($result instanceof \PDOStatement) {
-            $result->execute($input_parameters);
+        $stmt = $this->prepare($statement, $driver_options);
+        if ($stmt instanceof \PDOStatement) {
+            $stmt->execute($input_parameters);
         }
 
-        return $result;
+        return $stmt;
     }
 
     /**
-     * Log information for a single query execution
+     * Log information for a single statement execution
      *
      * @param string $sql The sql statement
      * @param float $microtime The execution time in seconds.microseconds
@@ -334,7 +370,7 @@ final class PDO extends \PDO
 
         $this->log_count += 1;
 
-        $this->log_queries[] = [
+        $this->log_statements[] = [
             'sql'    => $sql,
             'iter'   => $iter,
             'time'   => $microtime,
@@ -358,10 +394,31 @@ final class PDO extends \PDO
     public function getLog(): array
     {
         return [
-            'queries' => $this->log_queries,
-            'reruns'  => $this->log_reruns,
-            'time'    => $this->log_time,
-            'count'   => $this->log_count,
+            'statements'  => $this->log_statements,
+            'reruns'      => $this->log_reruns,
+            'time'        => $this->log_time,
+            'count'       => $this->log_count,
+            'connections' => $this->connections,
+            'ttl'         => $this->ttl,
         ];
+    }
+
+    public function __get(string $name)
+    {
+        if ($name === 'dsn') {
+            return $this->dsn;
+        }
+        if ($name === 'ttl') {
+            return $this->ttl;
+        }
+        if ($name === 'connections') {
+            return $this->connections;
+        }
+        if ($name === 'log') {
+            return $this->getLog();
+        }
+
+        // do not expose the internal pdo-connection
+        return null;
     }
 }
