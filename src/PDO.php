@@ -2,7 +2,6 @@
 
 /**
  * @package   p3-pdo
- * @version   0.5.1
  * @see       https://github.com/pine3ree/p3-pdo for the canonical source repository
  * @copyright https://github.com/pine3ree/p3-pdo/blob/master/COPYRIGHT.md
  * @author    pine3ree https://github.com/pine3ree
