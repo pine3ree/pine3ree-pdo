@@ -48,7 +48,7 @@ class PDOStatement extends \PDOStatement
     public function bindParam(
         $parameter,
         &$variable,
-        $data_type = PDO::PARAM_STR,
+        $data_type = \PDO::PARAM_STR,
         $length = null,
         $driver_options = null
     ): bool {
