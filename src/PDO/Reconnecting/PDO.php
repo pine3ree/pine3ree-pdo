@@ -14,7 +14,7 @@ use InvalidArgumentException;
 use P3\PDO as P3PDO;
 use RuntimeException;
 
-use function time;
+use function microtime;
 
 /**
  * {@inheritDoc}
@@ -28,7 +28,7 @@ final class PDO extends P3PDO
     private $ttl = 0;
 
     /** @var int */
-    private $timeConnected = 0;
+    private $lastConnectedAt = 0;
 
     /** @var int */
     private $connectionCount = 0;
@@ -63,7 +63,7 @@ final class PDO extends P3PDO
     {
         if (isset($this->pdo)) {
             if ($this->ttl > 0
-                && (time() - $this->timeConnected) > $this->ttl
+                && (microtime(true) - $this->lastConnectedAt) > ($this->ttl / 1000000)
                 && !$this->pdo->inTransaction()
             ) {
                 // disconnect if ttl seconds have passed since last connection
@@ -76,7 +76,7 @@ final class PDO extends P3PDO
         $this->pdo = parent::pdo();
 
         if (isset($this->pdo)) {
-            $this->timeConnected = time();
+            $this->lastConnectedAt = microtime(true);
             $this->connectionCount += 1;
 
             return $this->pdo;
