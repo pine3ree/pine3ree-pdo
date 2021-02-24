@@ -88,7 +88,7 @@ final class PDO extends P3PDO
             return $this->pdo;
         }
 
-        throw RuntimeException("Unable to create a PDO instance!");
+        throw new RuntimeException("Unable to create a PDO instance!");
     }
 
     /**
