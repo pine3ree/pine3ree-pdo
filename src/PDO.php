@@ -56,6 +56,11 @@ class PDO extends \PDO
         $this->options = $options;
     }
 
+    public function __destruct()
+    {
+        $this->pdo = null;
+    }
+
     /**
      * Establish or re-establish a pdo-database connection and return it
      *
