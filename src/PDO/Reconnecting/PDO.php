@@ -53,7 +53,7 @@ final class PDO extends P3PDO
         int $ttl = self::DEFAULT_TTL
     ) {
         parent::__construct($dsn, $username, $password, $options);
-        if (null !== $ttl && $ttl < 1) {
+        if ($ttl < 1) {
             throw new InvalidArgumentException(
                 "The expiry time TTL argument must be a positive integer: `{$ttl}` was provided!"
             );
