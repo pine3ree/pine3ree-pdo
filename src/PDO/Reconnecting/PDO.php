@@ -8,19 +8,16 @@
  * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
-namespace P3\PDO\Reconnecting;;
+namespace P3\PDO\Reconnecting;
 
 use InvalidArgumentException;
 use P3\PDO as P3PDO;
-use PDO;
-use PDOException;
-use PDOStatement;
 use RuntimeException;
 
 use function time;
 
 /**
- * PDO is a drop-in replacement for the php-extension "ext-pdo".
+ * {@inheritDoc}
  *
  * The purpose of this class is to disconnect and reconnect to the database every
  * ttl seconds
@@ -31,15 +28,15 @@ final class PDO extends P3PDO
     private $ttl = 0;
 
     /** @var int */
-    private $time_connected = 0;
+    private $timeConnected = 0;
 
     /** @var int */
-    private $connections = 0;
+    private $connectionCount = 0;
 
     /**
      * {@inheritDoc}
      *
-     * @param int $ttl The connection expiry time in seconds
+     * @param int $ttl The connection expiry time in seconds (must be positive)
      */
     public function __construct(
         string $dsn,
@@ -58,16 +55,15 @@ final class PDO extends P3PDO
     }
 
     /**
-     * Establish or re-establish a pdo-database connection and return it
+     * {@inheritDoc}
      *
-     * @return PDO
-     * @throws PDOException
+     * Establish or re-establish a pdo-database connection and return it
      */
-    protected function pdo(): PDO
+    protected function pdo(): \PDO
     {
         if (isset($this->pdo)) {
             if ($this->ttl > 0
-                && (time() - $this->time_connected) > $this->ttl
+                && (time() - $this->timeConnected) > $this->ttl
                 && !$this->pdo->inTransaction()
             ) {
                 // disconnect if ttl seconds have passed since last connection
@@ -80,8 +76,8 @@ final class PDO extends P3PDO
         $this->pdo = parent::pdo();
 
         if (isset($this->pdo)) {
-            $this->time_connected = time();
-            $this->connections += 1;
+            $this->timeConnected = time();
+            $this->connectionCount += 1;
 
             return $this->pdo;
         }
@@ -104,12 +100,12 @@ final class PDO extends P3PDO
     }
 
     /**
-     * Return the number of connection initiated so ar
+     * Return the number of connection initiated so far
      *
      * @return int
      */
-    public function getConnections(): int
+    public function getConnectionCount(): int
     {
-        return $this->connections;
+        return $this->connectionCount;
     }
 }
