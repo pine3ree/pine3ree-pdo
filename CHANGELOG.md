@@ -3,6 +3,25 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 1.1.1 - 2021-02-25
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Removed
+
+- Nothing
+
+### Fixed
+
+- Nothing.
+
+
 ## 1.1.0 - 2021-02-25
 
 ### Added
@@ -19,7 +38,8 @@ Changes are documented in reverse chronological order by release.
 
 ### Fixed
 
-- Nothing.
+- Changed reconnecting pdo default timeout to 30 seconds according to the default
+  ext-pdo attribute `PDO::ATTR_TIMEOUT`.
 
 
 ## 1.0.0 - 2021-02-24
