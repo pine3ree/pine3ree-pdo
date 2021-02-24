@@ -11,7 +11,6 @@
 namespace P3\PDO\Profiling;
 
 use P3\PDO\Profiling\PDO;
-use P3\PDO;
 
 use function microtime;
 
