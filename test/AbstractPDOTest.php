@@ -93,6 +93,8 @@ EOT
         self::assertSame(1, $stmt->rowCount());
     }
 
+    // phpcs:disable
+
     public function test_method_exec_updatesRows()
     {
         $pdo = $this->createPDO();

@@ -28,6 +28,8 @@ final class PDOTest extends AbstractPDOTest
         return new PDO(new \PDO($this->dsn, '', ''));
     }
 
+    // phpcs:disable
+
     public function test_method_prepare_returnsProfilingPdoStatement()
     {
         $pdo = $this->createPDO();
@@ -43,6 +45,8 @@ final class PDOTest extends AbstractPDOTest
         $this->expectException(\PDOException::class);
         $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
     }
+
+    // phpcs:enable
 
     public function testStatementLogger()
     {
@@ -85,6 +89,4 @@ final class PDOTest extends AbstractPDOTest
         self::assertSame(5, $stmnts[4]['params'][':id']);
         self::assertSame(6, $stmnts[5]['params'][':id']);
     }
-
-    // phpcs:enable
 }

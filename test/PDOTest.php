@@ -80,7 +80,7 @@ final class PDOTest extends AbstractPDOTest
     }
 
     // phpcs:enable
-    
+
     public function provideDSNs()
     {
         return [
