@@ -26,6 +26,9 @@ use function sprintf;
  */
 final class PDO extends \PDO
 {
+    /** @var \PDO */
+    private $pdo;
+
     /** @var array */
     private $log_statements = [];
 
