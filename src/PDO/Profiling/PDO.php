@@ -40,9 +40,7 @@ final class PDO extends \PDO
 
     /**
      * {@inheritDoc}
-     *
-     * @param bool $log Activate query-logging/profiling?
-     * @param int $ttl The connection expiry time in seconds, 0 for no-expire
+     * @param \PDO $pdo The decorated pdo instance
      */
     public function __construct(\PDO $pdo)
     {
