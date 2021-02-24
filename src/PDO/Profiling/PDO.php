@@ -10,6 +10,7 @@
 
 namespace P3\PDO\Profiling;
 
+use P3\PDO as LazyPDO;
 use P3\PDO\Profiling\PDOStatement;
 use PDOException;
 
@@ -172,6 +173,20 @@ final class PDO extends \PDO
         $this->log($sql, microtime(true) - $t0);
 
         return $result;
+    }
+
+    /**
+     * Has the database connection already been established?
+     *
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        if ($this->pdo instanceof LazyPDO) {
+            return $this->pdo->isConnected();
+        }
+
+        return isset($this->pdo);
     }
 
     /**
