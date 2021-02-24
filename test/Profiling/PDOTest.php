@@ -14,52 +14,13 @@ use P3\PDOTest\Profiling\AbstractPDOTest;
 use P3\PDO\Profiling\PDO;
 use P3\PDO\Profiling\PDOStatement;
 
-use function date;
 use function md5;
-use function rand;
-use function sprintf;
-use function strtotime;
-use function time;
 
 final class PDOTest extends AbstractPDOTest
 {
-    /** @var string */
-    private $dbfile = "/tmp/p3-pdo-sqlit-test.db";
-
-    /** @var string */
-    private $dsn = "sqlite:/tmp/p3-pdo-sqlit-test.db";
-
-    public function setUp()
+    protected static function expectedStatementClass(): string
     {
-        $pdo = new \PDO($this->dsn);
-        $pdo->exec(<<<EOT
-CREATE TABLE `user` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `username` TEXT UNIQUE,
-    `email` TEXT UNIQUE,
-    `enabled` INTEGER DEFAULT '0',
-    `created_at` TEXT DEFAULT '0000-00-00 00:00:00',
-    `updated_at` TEXT DEFAULT '0000-00-00 00:00:00'
-);
-EOT
-        );
-
-        $stmt = $pdo->prepare(<<<EOT
-INSERT INTO `user`
-    (`username`, `email`, `enabled`, `created_at`)
-VALUES
-    (:username, :email, :enabled, :created_at)
-EOT
-        );
-
-        for ($i = 1; $i <= 10; $i++) {
-            $stmt->execute([
-                ':username'   => sprintf("username-%03d", $i),
-                ':email'      => sprintf("email-%03d@emample.com", $i),
-                ':enabled'    => mt_rand(0, 1),
-                ':created_at' => date('Y-m-d H:i:s', rand(strtotime('-60 days'), time())),
-            ]);
-        }
+        return PDOStatement::class;
     }
 
     protected function createPDO(): PDO
@@ -80,7 +41,7 @@ EOT
         $pdo = $this->createPDO();
 
         $this->expectException(\PDOException::class);
-        $pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+        $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
     }
 
     public function testStatementLogger()
