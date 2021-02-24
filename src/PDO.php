@@ -10,18 +10,10 @@
 
 namespace P3;
 
-use InvalidArgumentException;
 use P3\PDOStatement;
 
 use function explode;
 use function func_get_args;
-use function gettype;
-use function is_string;
-use function is_subclass_of;
-use function md5;
-use function microtime;
-use function sprintf;
-use function time;
 
 /**
  * PDO is a drop-in replacement for the php-extension "ext-pdo".
@@ -29,70 +21,39 @@ use function time;
  * The purpose of this class is to lazily establish a database connection the
  * first time the connection is needed.
  */
-final class PDO extends \PDO
+class PDO extends \PDO
 {
     /** @var \PDO|null */
-    private $pdo;
+    protected $pdo;
 
     /** @var string */
-    private $dsn;
+    protected $dsn;
 
     /** @var string */
-    private $username;
+    protected $username;
 
     /** @var string*/
-    private $password;
+    protected $password;
 
     /** @var array */
-    private $options;
+    protected $options;
 
     /** @var array */
-    private $attributes = [];
-
-    /** @var int */
-    private $time_connected = 0;
-
-    /** @var int */
-    private $connections = 0;
-
-    /** @var int */
-    private $ttl = 0;
-
-    /** @var bool */
-    private $log;
-
-    /** @var array */
-    private $log_statements = [];
-
-    /** @var array */
-    private $log_reruns = [];
-
-    /** @var int */
-    private $log_count = 0;
-
-    /** @var float */
-    private $log_time = 0.0;
+    protected $attributes = [];
 
     /**
      * {@inheritDoc}
-     *
-     * @param bool $log Activate query-logging/profiling?
-     * @param int $ttl The connection expiry time in seconds, 0 for no-expire
      */
     public function __construct(
         string $dsn,
         string $username = '',
         string $password = '',
-        array $options = [],
-        int $ttl = 0,
-        bool $log = false
+        array $options = []
     ) {
         $this->dsn = $dsn;
         $this->username = $username;
         $this->password = $password;
         $this->options = $options;
-        $this->ttl = $ttl;
-        $this->log = $log;
     }
 
     /**
@@ -101,17 +62,10 @@ final class PDO extends \PDO
      * @return \PDO
      * @throws \PDOException
      */
-    private function pdo(): \PDO
+    protected function pdo(): \PDO
     {
         if (isset($this->pdo)) {
-            if ($this->ttl > 0
-                && time() - $this->time_connected > $this->ttl
-                && !$this->pdo->inTransaction()
-            ) {
-                $this->pdo = null;
-            } else {
-                return $this->pdo;
-            }
+            return $this->pdo;
         }
 
         $this->pdo = new \PDO(
@@ -120,17 +74,6 @@ final class PDO extends \PDO
             $this->password,
             $this->options
         );
-
-        $this->time_connected = time();
-        $this->connections += 1;
-
-        // set our custom statement-class if query-log is enabled
-        if ($this->log) {
-            $this->pdo->setAttribute(
-                self::ATTR_STATEMENT_CLASS,
-                [PDOStatement::class, [$this]]
-            );
-        }
 
         // apply preset attributes, if any
         foreach ($this->attributes as $attribute => $value) {
@@ -185,10 +128,6 @@ final class PDO extends \PDO
     /** {@inheritDoc} */
     public function exec($statement): int
     {
-        if ($this->log) {
-            return $this->profile(__FUNCTION__, $statement, [$statement]);
-        }
-
         return $this->pdo()->exec($statement);
     }
 
@@ -248,10 +187,6 @@ final class PDO extends \PDO
      */
     public function query(string $statement, int $fetch_style = null, $fetch_argument = null)
     {
-        if ($this->log) {
-            return $this->profile(__FUNCTION__, $statement, func_get_args());
-        }
-
         return $this->pdo()->query(...func_get_args());
     }
 
@@ -278,26 +213,6 @@ final class PDO extends \PDO
      */
     public function setAttribute($attribute, $value): bool
     {
-        // validate ATTR_STATEMENT_CLASS assignment if query-log is enabled
-        if ($this->log
-            && $attribute === self::ATTR_STATEMENT_CLASS
-        ) {
-            $stmt_class = $value[0] ?? null;
-            if (!is_string($stmt_class)
-                || !(
-                    $stmt_class === PDOStatement::class
-                    || is_subclass_of($stmt_class, PDOStatement::class)
-                )
-            ) {
-                throw new \PDOException(sprintf(
-                    "When query-logging is enabled the statement-class must be"
-                    . " either %s` or its subclass, `%s` given!",
-                    PDOStatement::class,
-                    is_string($stmt_class) ? $stmt_class : gettype($stmt_class)
-                ));
-            }
-        }
-
         $this->attributes[$attribute] = $value;
 
         if (isset($this->pdo)) {
@@ -305,15 +220,6 @@ final class PDO extends \PDO
         }
 
         return true;
-    }
-
-    private function profile(string $method, string $sql, array $args)
-    {
-        $t0 = microtime(true);
-        $result = $this->pdo()->{$method}(...$args);
-        $this->log($sql, microtime(true) - $t0);
-
-        return $result;
     }
 
     /**
@@ -341,60 +247,5 @@ final class PDO extends \PDO
         }
 
         return $stmt;
-    }
-
-    /**
-     * Log information for a single statement execution
-     *
-     * @param string $sql The sql statement
-     * @param float $microtime The execution time in seconds.microseconds
-     * @param array|null $params The parameters for the sql markes
-     * @internal
-     */
-    public function log(
-        string $sql,
-        float $microtime,
-        array $params = null
-    ) {
-        $key = md5($sql);
-
-        $time = $this->log_reruns[$key]['time'] ?? 0.0;
-        $iter = $this->log_reruns[$key]['iter'] ?? 0;
-        $iter += 1;
-
-        $this->log_count += 1;
-
-        $this->log_statements[] = [
-            'sql'    => $sql,
-            'iter'   => $iter,
-            'time'   => $microtime,
-            'params' => $params,
-        ];
-
-        $this->log_reruns[$key] = [
-            'sql'  => $sql,
-            'iter' => $iter,
-            'time' => $time + $microtime,
-        ];
-
-        $this->log_time += $microtime;
-    }
-
-    /**
-     * Return the combined log/profiling information
-     *
-     * @return array
-     */
-    public function getLog(): array
-    {
-        return [
-            'statements'  => $this->log_statements,
-            'reruns'      => $this->log_reruns,
-            'time'        => $this->log_time,
-            'count'       => $this->log_count,
-            'connections' => $this->connections,
-            'ttl'         => $this->ttl,
-            'dsn'         => $this->dsn,
-        ];
     }
 }
