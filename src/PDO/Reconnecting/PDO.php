@@ -25,13 +25,20 @@ use function microtime;
 final class PDO extends P3PDO
 {
     /** @var int */
-    private $ttl = 0;
+    private $ttl;
 
     /** @var int */
     private $lastConnectedAt = 0;
 
     /** @var int */
     private $connectionCount = 0;
+
+    /**
+     * @const int The default ttl value if not given via constructor
+     *
+     * @internal
+     */
+    const DEFAULT_TTL = 60;
 
     /**
      * {@inheritDoc}
@@ -43,10 +50,10 @@ final class PDO extends P3PDO
         string $username = '',
         string $password = '',
         array $options = [],
-        int $ttl
+        int $ttl = self::DEFAULT_TTL
     ) {
         parent::__construct($dsn, $username, $password, $options);
-        if ($ttl < 1) {
+        if (null !== $ttl && $ttl < 1) {
             throw new InvalidArgumentException(
                 "The expiry time TTL argument must be a positive integer: `{$ttl}` was provided!"
             );
