@@ -33,12 +33,12 @@ final class PDO extends P3PDO
     /** @var int */
     private $connectionCount = 0;
 
-        /**
+    /**
      * @const int The default ttl value if not given via constructor
      *
      * @internal
      */
-    const DEFAULT_TTL = 60; //phpcs:ignore
+    const DEFAULT_TTL = 30; //phpcs:ignore
 
     /**
      * {@inheritDoc}
