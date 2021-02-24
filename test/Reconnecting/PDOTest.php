@@ -55,6 +55,24 @@ final class PDOTest extends AbstractPDOTest
         self::assertEquals(2, $pdo->getConnectionCount());
     }
 
+    public function testThatReconnectionDoesNotHappensIfNotExceedingTTL()
+    {
+        $ttl = 10;
+        $pdo = $this->createReconnectingPDO($ttl);
+        self::assertFalse($pdo->isConnected());
+
+        // connect
+        $pdo->quote('A'); // trigger connection
+        self::assertTrue($pdo->isConnected());
+        self::assertEquals(1, $pdo->getConnectionCount());
+
+        // pause less than ttl and verify that there is no new connection
+        usleep(500);
+        $pdo->quote('A'); // trigger reconnection if needed
+        self::assertTrue($pdo->isConnected());
+        self::assertEquals(1, $pdo->getConnectionCount());
+    }
+
     public function testThatReconnectionDoesNotHappenIfInTransaction()
     {
         $ttl = 1;
