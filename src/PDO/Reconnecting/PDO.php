@@ -102,7 +102,7 @@ final class PDO extends P3PDO
             return $this->ttl;
         }
 
-        return $this->pdo->getAttribute($attribute);
+        return parent::getAttribute($attribute);
     }
 
     /**
