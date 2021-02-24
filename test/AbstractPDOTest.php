@@ -65,7 +65,11 @@ EOT
     }
 
     abstract protected function createPDO();
-    abstract protected static function expectedStatementClass(): string;
+    
+    protected static function expectedStatementClass(): string
+    {
+        return \PDOStatement::class;
+    }
 
     public function testInsertRow()
     {
