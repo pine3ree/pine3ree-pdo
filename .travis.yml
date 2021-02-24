@@ -18,6 +18,7 @@ matrix:
     - php: 7.0
       env:
         - DEPS=latest
+        - PHPCS=true
         - PHPSTAN=true
 
     - php: 7.1
@@ -50,11 +51,11 @@ matrix:
     - php: 7.4
       env:
         - DEPS=lowest
+        - PHPSTAN=true
     - php: 7.4
       env:
         - DEPS=latest
         - PHPCS=true
-        - PHPSTAN=true
 
 before_install:
 
