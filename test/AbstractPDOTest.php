@@ -111,7 +111,7 @@ EOT
         $pdo = $this->createPDO();
         $stmt = $pdo->query("SELECT * FROM `user`");
 
-        self::assertInstanceOf(static::expectedStatementClass() $stmt);
+        self::assertInstanceOf(static::expectedStatementClass(), $stmt);
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
