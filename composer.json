@@ -27,6 +27,7 @@
     "require-dev": {
         "phpstan/phpstan": "^0.9",
         "phpstan/phpstan-strict-rules": "^0.9",
+        "phpstan/phpstan-phpunit": "^0.9",
         "phpunit/phpunit": "^6.5",
         "squizlabs/php_codesniffer": "^3.5"
     },
