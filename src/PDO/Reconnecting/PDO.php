@@ -78,7 +78,7 @@ final class PDO extends P3PDO
 
         $this->pdo = parent::pdo();
 
-        if ($this->pdo instanceof PDO) {
+        if (isset($this->pdo)) {
             $this->time_connected = time();
             $this->connections += 1;
 
