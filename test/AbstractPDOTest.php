@@ -26,10 +26,10 @@ use function unlink;
 abstract class AbstractPDOTest extends TestCase
 {
     /** @var string */
-    private $dbfile = "/tmp/p3-pdo-sqlit-test.db";
+    protected $dbfile = "/tmp/p3-pdo-sqlit-test.db";
 
     /** @var string */
-    private $dsn = "sqlite:/tmp/p3-pdo-sqlit-test.db";
+    protected $dsn = "sqlite:/tmp/p3-pdo-sqlit-test.db";
 
     public function setUp()
     {
