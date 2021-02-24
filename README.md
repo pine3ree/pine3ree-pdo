@@ -96,7 +96,7 @@ This method is inherited by `P3\PDO\Reconnecting\PDO`.
 
 checks if we have an established database connection.
 
-This method is inherited by `P3\PDO\Reconnecting\PDO`.
+This method is inherited by `P3\PDO\Reconnecting\PDO` and also implemented in `P3\PDO\Profiling\PDO`.
 
 #### P3\PDO\Profiling\PDO::getLog(): array
 returns recorded profiling information about all the executed statements in the

@@ -11,6 +11,7 @@
 namespace P3\PDOTest\Profiling;
 
 use P3\PDOTest\Profiling\AbstractPDOTest;
+use P3\PDO as LazyPDO;
 use P3\PDO\Profiling\PDO;
 use P3\PDO\Profiling\PDOStatement;
 
@@ -26,6 +27,11 @@ final class PDOTest extends AbstractPDOTest
     protected function createPDO(): PDO
     {
         return new PDO(new \PDO($this->dsn, '', ''));
+    }
+
+    protected function createLazyPDO(): PDO
+    {
+        return new PDO(new LazyPDO($this->dsn, '', ''));
     }
 
     // phpcs:disable
@@ -44,6 +50,20 @@ final class PDOTest extends AbstractPDOTest
 
         $this->expectException(\PDOException::class);
         $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+    }
+
+    public function test_method_beginTransaction_createsDbConnectionWithExtPDO()
+    {
+        $pdo = $this->createPDO();
+        $pdo->beginTransaction();
+        self::assertTrue($pdo->isConnected());
+    }
+
+    public function test_method_beginTransaction_createsDbConnectionWithLazyPDO()
+    {
+        $pdo = $this->createLazyPDO();
+        $pdo->beginTransaction();
+        self::assertTrue($pdo->isConnected());
     }
 
     // phpcs:enable
