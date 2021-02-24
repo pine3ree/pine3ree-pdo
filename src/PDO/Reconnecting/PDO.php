@@ -69,7 +69,7 @@ final class PDO extends P3PDO
     protected function pdo(): \PDO
     {
         if (isset($this->pdo)) {
-            if ((microtime(true) - $this->lastConnectedAt) > ($this->ttl * 1000000)
+            if ((microtime(true) - $this->lastConnectedAt) > $this->ttl
                 && !$this->pdo->inTransaction()
             ) {
                 // disconnect if ttl seconds have passed since last connection
