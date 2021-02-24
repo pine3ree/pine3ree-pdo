@@ -51,7 +51,6 @@ matrix:
     - php: 7.4
       env:
         - DEPS=lowest
-        - PHPSTAN=true
     - php: 7.4
       env:
         - DEPS=latest
