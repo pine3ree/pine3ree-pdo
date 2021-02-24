@@ -70,6 +70,7 @@ final class PDO extends P3PDO
                 && (time() - $this->time_connected) > $this->ttl
                 && !$this->pdo->inTransaction()
             ) {
+                // disconnect if ttl seconds have passed since last connection
                 $this->pdo = null;
             } else {
                 return $this->pdo;
