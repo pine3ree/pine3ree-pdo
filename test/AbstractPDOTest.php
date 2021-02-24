@@ -65,7 +65,7 @@ EOT
     }
 
     abstract protected function createPDO();
-    
+
     protected static function expectedStatementClass(): string
     {
         return \PDOStatement::class;
