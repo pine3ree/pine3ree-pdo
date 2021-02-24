@@ -11,68 +11,23 @@
 namespace P3\PDOTest;
 
 use P3\PDO;
-use P3\PDOStatement;
-use PHPUnit\Framework\TestCase;
+use P3\PDOTest\Profiling\AbstractPDOTest;
 
-use function date;
-use function is_file;
-use function in_array;
-use function md5;
-use function rand;
-use function sprintf;
-use function strtotime;
-use function time;
-use function unlink;
-
-final class PDOTest extends TestCase
+final class PDOTest extends AbstractPDOTest
 {
-    /** @var string */
-    private $dbfile = "/tmp/p3-pdo-sqlit-test.db";
-
-    /** @var string */
-    private $dsn = "sqlite:/tmp/p3-pdo-sqlit-test.db";
-
-    public function setUp()
+    protected static function expectedStatementClass(): string
     {
-        $pdo = new \PDO($this->dsn);
-        $pdo->exec(<<<EOT
-CREATE TABLE `user` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `username` TEXT UNIQUE,
-    `email` TEXT UNIQUE,
-    `enabled` INTEGER DEFAULT '0',
-    `created_at` TEXT DEFAULT '0000-00-00 00:00:00',
-    `updated_at` TEXT DEFAULT '0000-00-00 00:00:00'
-);
-EOT
-        );
-
-        $stmt = $pdo->prepare(<<<EOT
-INSERT INTO `user`
-    (`username`, `email`, `enabled`, `created_at`)
-VALUES
-    (:username, :email, :enabled, :created_at)
-EOT
-        );
-
-        for ($i = 1; $i <= 10; $i++) {
-            $stmt->execute([
-                ':username'   => sprintf("username-%03d", $i),
-                ':email'      => sprintf("email-%03d@emample.com", $i),
-                ':enabled'    => mt_rand(0, 1),
-                ':created_at' => date('Y-m-d H:i:s', rand(strtotime('-60 days'), time())),
-            ]);
-        }
+        return \PDOStatement::class;
     }
 
-    private function createPDO(int $ttl = 0, bool $log = false)
+    protected function createPDO(): PDO
     {
-        return new PDO($this->dsn, '', '', [], $ttl, $log);
+        return new PDO($this->dsn, '', '', []);
     }
 
-    private function createPDOfromDSN(string $dsn, int $ttl = 0, bool $log = false)
+    protected function createPDOfromDSN(string $dsn): PDO
     {
-        return new PDO($dsn, '', '', [], $ttl, $log);
+        return new PDO($dsn, '', '', []);
     }
 
     // phpcs:disable
@@ -83,7 +38,7 @@ EOT
     public function test_method_getAttribute_returnsCorrectDrivernameIfNotConnected(string $dsn, string $driver_name)
     {
         $pdo = $this->createPDOfromDSN($dsn);
-        self::assertSame($driver_name, $pdo->getAttribute(PDO::ATTR_DRIVER_NAME));
+        self::assertSame($driver_name, $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME));
     }
 
     public function test_method_errorCode_returnsNoErrorStringIfNotConnected()
@@ -120,221 +75,7 @@ EOT
     public function test_method_quote_createsDbConnection()
     {
         $pdo = $this->createPDO();
-        $pdo->quote('!"£$%&/()=?^^', PDO::PARAM_STR);
+        $pdo->quote('!"£$%&/()=?^^', \PDO::PARAM_STR);
         self::assertTrue($pdo->isConnected());
-    }
-
-    public function test_method_prepare_returnsP3PdoStatementIfLogEnabled()
-    {
-        $pdo = $this->createPDO(0, true);
-        $result = $pdo->prepare("SELECT * FROM `user` WHERE `id` = :id");
-
-        self::assertInstanceOf(PDOStatement::class, $result);
-    }
-
-    public function test_method_prepare_returnsExtPdoStatementIfLogDisabled()
-    {
-        $pdo = $this->createPDO();
-        $result = $pdo->prepare("SELECT * FROM `user` WHERE `id` = :id");
-
-        self::assertInstanceOf(\PDOStatement::class, $result);
-    }
-
-    public function test_method_setAttribute_throwsPDOExceptionIfSettingInvalidStatementClassAndLogEnabled()
-    {
-        $pdo = $this->createPDO(0, true);
-
-        $this->expectException(\PDOException::class);
-        $pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
-    }
-
-    /**
-     * @dataProvider provideLogAndExpectedStatementClass
-     */
-    public function testInsertRow(bool $log, string $statementClass)
-    {
-        $pdo = $this->createPDO(0, $log);
-
-        $stmt = $pdo->prepare(
-            "INSERT INTO `user` (`username`, `email`, `enabled`, `created_at`) "
-            . "VALUES (:username, :email, :enabled, :created_at)"
-        );
-
-        self::assertInstanceOf($statementClass, $stmt);
-
-        $result = $stmt->execute([
-            ':username'   => "username-666",
-            ':email'      => "email-666@emample.com",
-            ':enabled'    => mt_rand(0, 1),
-            ':created_at' => date('Y-m-d H:i:s', mt_rand(strtotime('-60 days'), time())),
-        ]);
-
-        self::assertTrue($result);
-        self::assertSame(1, $stmt->rowCount());
-    }
-
-    public function test_method_exec_updatesRows()
-    {
-        $pdo = $this->createPDO();
-
-        // update 1 row
-        $result = $pdo->exec(
-            "UPDATE `user` SET `username` = 'username-001' WHERE `id` = 1"
-        );
-        self::assertSame(1, $result);
-
-        // update 2 rows
-        $result = $pdo->exec(
-            "UPDATE `user` SET `username` = `username` || '=' || `id` WHERE `id` IN (2, 3)"
-        );
-        self::assertSame(2, $result);
-    }
-
-    /**
-     * @dataProvider provideLogAndExpectedStatementClass
-     */
-    public function test_method_query_usingSelectReturnRows(bool $log, string $statementClass)
-    {
-        $pdo = $this->createPDO();
-        $stmt = $pdo->query("SELECT * FROM `user`");
-
-        self::assertInstanceOf(\PDOStatement::class, $stmt);
-
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        self::assertTrue(is_array($rows));
-        self::assertSame(10, count($rows));
-
-        self::assertArrayHasKey('id', $rows[0]);
-        self::assertArrayHasKey('username', $rows[0]);
-        self::assertArrayHasKey('email', $rows[0]);
-        self::assertArrayHasKey('enabled', $rows[0]);
-        self::assertArrayHasKey('created_at', $rows[0]);
-
-        self::assertSame('1', $rows[0]['id']);
-        self::assertSame('username-001', $rows[0]['username']);
-        self::assertSame('email-001@emample.com', $rows[0]['email']);
-        self::assertTrue(in_array($rows[0]['enabled'], ['0', '1'], true));
-        self::assertRegExp('/\d{4}\-\d{2}\-\d{2} [0-2][0-9]\:[0-5][0-9]\:[0-5][0-9]/', $rows[0]['created_at']);
-        self::assertSame('0000-00-00 00:00:00', $rows[0]['updated_at']);
-    }
-
-    public function test_method_run_preparesAndExecutesStatement()
-    {
-        $pdo = $this->createPDO();
-        $stmt = $pdo->run("SELECT * FROM `user` WHERE `id` = :id", [':id' => 9]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        self::assertArrayHasKey('id', $row);
-        self::assertArrayHasKey('username', $row);
-        self::assertArrayHasKey('email', $row);
-        self::assertArrayHasKey('enabled', $row);
-        self::assertArrayHasKey('created_at', $row);
-
-        self::assertSame('9', $row['id']);
-        self::assertSame('username-009', $row['username']);
-        self::assertSame('email-009@emample.com', $row['email']);
-        self::assertTrue(in_array($row['enabled'], ['0', '1'], true));
-        self::assertSame('0000-00-00 00:00:00', $row['updated_at']);
-    }
-
-    public function test_method_run_returnsFalseForInvalidQueryWithErrorModeSilent()
-    {
-        $pdo = $this->createPDO();
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
-        $result = $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
-
-        self::assertFalse($result);
-    }
-
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     */
-    public function test_method_run_triggersWarningForInvalidQueryWithErrorModeWarning()
-    {
-        $pdo = $this->createPDO();
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-        $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
-    }
-
-    /**
-     * @expectedException \PDOException
-     */
-    public function test_method_run_throwsPDOExceptionForInvalidQueryWithErrorModeException()
-    {
-        $pdo = $this->createPDO();
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->run("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
-    }
-
-    public function testStatementLogger()
-    {
-        $pdo = $this->createPDO(0, true);
-
-        $sql1 = "SELECT * FROM `user` WHERE `id` = :id";
-        $sql2 = "SELECT `username` FROM `user` WHERE `id` = :id";
-        $sql3 = "SELECT `email` FROM `user` WHERE `id` = :id";
-
-        $pdo->run($sql1, [':id' => 1]); // 0
-        $pdo->run($sql1, [':id' => 2]); // 1
-        $pdo->run($sql2, [':id' => 3]); // 2
-        $pdo->run($sql1, [':id' => 4]); // 3
-        $pdo->run($sql2, [':id' => 5]); // 4
-        $pdo->run($sql3, [':id' => 6]); // 5
-
-        $log = $pdo->getLog();
-
-        $stmnts = $log['statements'];
-        $reruns = $log['reruns'];
-
-        self::assertSame(6, $log['count']);
-        self::assertSame(3, count($reruns));
-
-        self::assertSame(3, $reruns[md5($sql1)]['iter']);
-        self::assertSame(2, $reruns[md5($sql2)]['iter']);
-        self::assertSame(1, $reruns[md5($sql3)]['iter']);
-
-        self::assertSame(1, $stmnts[0]['iter']);
-        self::assertSame(2, $stmnts[1]['iter']);
-        self::assertSame(1, $stmnts[2]['iter']);
-        self::assertSame(3, $stmnts[3]['iter']);
-        self::assertSame(2, $stmnts[4]['iter']);
-        self::assertSame(1, $stmnts[5]['iter']);
-
-        self::assertSame(1, $stmnts[0]['params'][':id']);
-        self::assertSame(2, $stmnts[1]['params'][':id']);
-        self::assertSame(3, $stmnts[2]['params'][':id']);
-        self::assertSame(4, $stmnts[3]['params'][':id']);
-        self::assertSame(5, $stmnts[4]['params'][':id']);
-        self::assertSame(6, $stmnts[5]['params'][':id']);
-    }
-
-    // phpcs:enable
-
-    public function provideDSNs()
-    {
-        return [
-            ['mysql:dbname=mydb;host=localhost;port=3306;charset=utf8', 'mysql'],
-            ['pgsql:dbname=mydb;host=localhost', 'pgsql'],
-            ['sqlite::memory:;', 'sqlite'],
-            ['sqlsrv:Database=mydb;Server=localhost,12345', 'sqlsrv'],
-            ['oci:dbname=//localhost:1234/mydb;charset=utf8', 'oci'],
-        ];
-    }
-    public function provideLogAndExpectedStatementClass()
-    {
-        return [
-            [false, \PDOStatement::class],
-            [true, PDOStatement::class],
-        ];
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
-
-        if (is_file($this->dbfile)) {
-            unlink($this->dbfile);
-        }
     }
 }
