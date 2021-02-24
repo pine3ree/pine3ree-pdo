@@ -3,6 +3,25 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 1.1.0 - 2021-02-25
+
+### Added
+
+- Added `P3\PDO\Profiling\PDO::isConnected():  bool` method
+
+### Deprecated
+
+- Nothing
+
+### Removed
+
+- Nothing
+
+### Fixed
+
+- Nothing.
+
+
 ## 1.0.0 - 2021-02-24
 
 This is a BC-breaking update.
