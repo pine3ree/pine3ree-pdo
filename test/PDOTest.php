@@ -78,4 +78,17 @@ final class PDOTest extends AbstractPDOTest
         $pdo->quote('!"£$%&/()=?^^', \PDO::PARAM_STR);
         self::assertTrue($pdo->isConnected());
     }
+
+    // phpcs:enable
+    
+    public function provideDSNs()
+    {
+        return [
+            ['mysql:dbname=mydb;host=localhost;port=3306;charset=utf8', 'mysql'],
+            ['pgsql:dbname=mydb;host=localhost', 'pgsql'],
+            ['sqlite::memory:;', 'sqlite'],
+            ['sqlsrv:Database=mydb;Server=localhost,12345', 'sqlsrv'],
+            ['oci:dbname=//localhost:1234/mydb;charset=utf8', 'oci'],
+        ];
+    }
 }
