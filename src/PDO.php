@@ -10,8 +10,6 @@
 
 namespace P3;
 
-use P3\PDOStatement;
-
 use function explode;
 use function func_get_args;
 
@@ -233,7 +231,7 @@ class PDO extends \PDO
      * @param string $statement The SQL expression possibly including parameter markers
      * @param array $input_parameters Substitution parameters for the markers, if any
      * @param array $driver_options  Additional driver options, if any
-     * @return PDOStatement|false
+     * @return \PDOStatement|false
      *
      * @see \PDO::prepare()
      * @see \PDOStatement::execute()
