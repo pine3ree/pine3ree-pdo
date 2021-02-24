@@ -65,7 +65,7 @@ EOT
     }
 
     abstract protected function createPDO();
-    abstract protected function expectedStatementClass(): string;
+    abstract protected static function expectedStatementClass(): string;
 
     public function testInsertRow()
     {
@@ -76,7 +76,7 @@ EOT
             . "VALUES (:username, :email, :enabled, :created_at)"
         );
 
-        self::assertInstanceOf(PDOStatement::class, $stmt);
+        self::assertInstanceOf(static::expectedStatementClass(), $stmt);
 
         $result = $stmt->execute([
             ':username'   => "username-666",
@@ -111,7 +111,7 @@ EOT
         $pdo = $this->createPDO();
         $stmt = $pdo->query("SELECT * FROM `user`");
 
-        self::assertInstanceOf(PDOStatement::class, $stmt);
+        self::assertInstanceOf(static::expectedStatementClass() $stmt);
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
