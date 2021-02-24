@@ -113,7 +113,7 @@ EOT
 
         self::assertInstanceOf(static::expectedStatementClass(), $stmt);
 
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         self::assertTrue(is_array($rows));
         self::assertSame(10, count($rows));
@@ -136,7 +136,7 @@ EOT
     {
         $pdo = $this->createPDO();
         $stmt = $pdo->execute("SELECT * FROM `user` WHERE `id` = :id", [':id' => 9]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         self::assertArrayHasKey('id', $row);
         self::assertArrayHasKey('username', $row);
@@ -154,7 +154,7 @@ EOT
     public function test_method_execute_returnsFalseForInvalidQueryWithErrorModeSilent()
     {
         $pdo = $this->createPDO();
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
         $result = $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
 
         self::assertFalse($result);
@@ -166,7 +166,7 @@ EOT
     public function test_method_execute_triggersWarningForInvalidQueryWithErrorModeWarning()
     {
         $pdo = $this->createPDO();
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
         $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
@@ -176,7 +176,7 @@ EOT
     public function test_method_execute_throwsPDOExceptionForInvalidQueryWithErrorModeException()
     {
         $pdo = $this->createPDO();
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
