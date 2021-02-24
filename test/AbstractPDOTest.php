@@ -65,6 +65,7 @@ EOT
     }
 
     abstract protected function createPDO();
+    abstract protected function expectedStatementClass(): string;
 
     public function testInsertRow()
     {
