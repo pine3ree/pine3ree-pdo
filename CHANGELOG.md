@@ -3,6 +3,32 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 1.0.0 - 2021-02-24
+
+This is a BC-breaking update.
+
+The lazy-connection, the profiling and the auto-disconnect/reconnect features have
+been implemented using separate classes.
+
+### Added
+
+- Added separate profiling classes P3\PDO\Profiling\PDO and P3\PDO\Profiling\PDOStatement
+- Added separate reconnecting class P3\PDO\Reconnecting\PDO
+
+### Deprecated
+
+- Nothing
+
+### Removed
+
+- The base class now only provides the lazy-connection feature, extra constructor arguments and
+  getLog() methods have been removed
+
+### Fixed
+
+- Nothing.
+
+
 ## 0.6.0 - 2020-05-11
 
 ### Added
