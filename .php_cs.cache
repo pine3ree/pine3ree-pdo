@@ -1,0 +1,1 @@
+{"php":"7.3.17","version":"2.16.3","indent":"    ","lineEnding":"\n","rules":{"global_namespace_import":{"import_functions":true}},"hashes":{"src\/PDO.php":3279398790,"src\/PDOStatement.php":198339269}}
