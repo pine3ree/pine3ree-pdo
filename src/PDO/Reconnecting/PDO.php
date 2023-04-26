@@ -76,7 +76,7 @@ final class PDO extends P3PDO
             if ((microtime(true) - $this->lastConnectedAt) <= $this->ttl) {
                 return $this->pdo;
             }
-            // Disconnect if ttl seconds have passed since last connection
+            // Disconnect if more than ttl seconds have passed since last connection
             $this->pdo = null;
         }
 
