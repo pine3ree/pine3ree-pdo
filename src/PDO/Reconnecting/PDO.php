@@ -69,14 +69,15 @@ final class PDO extends P3PDO
     protected function pdo(): \PDO
     {
         if (isset($this->pdo)) {
-            if ((microtime(true) - $this->lastConnectedAt) > $this->ttl
-                && !$this->pdo->inTransaction()
-            ) {
-                // disconnect if ttl seconds have passed since last connection
-                $this->pdo = null;
-            } else {
+            // Do not disconnect if we are inside a transaction
+            if ($this->pdo->inTransaction()) {
                 return $this->pdo;
             }
+            if ((microtime(true) - $this->lastConnectedAt) <= $this->ttl) {
+                return $this->pdo;
+            }
+            // Disconnect if ttl seconds have passed since last connection
+            $this->pdo = null;
         }
 
         $this->pdo = parent::pdo();
