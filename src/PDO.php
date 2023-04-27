@@ -188,7 +188,7 @@ class PDO extends \PDO
      * {@inheritDoc}
      * @link https://www.php.net/manual/en/pdo.query.php
      */
-    public function query(string $statement, int $fetch_style = null, $fetch_argument = null)
+    public function query(string $statement, int $fetch_mode = null, $fetch_argument = null, $fetch_extra = null)
     {
         return $this->pdo()->query(...func_get_args());
     }
