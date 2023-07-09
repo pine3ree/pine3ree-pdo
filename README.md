@@ -29,7 +29,7 @@ PDO class. A wrapped standard PDO instance will be created on demand when really
 
 ```php
 $pdo = new P3\PDO(
-    $dsn = 'slite:my-db.sqlite3',
+    $dsn = 'sqlite:my-db.sqlite3',
     $username = '',
     $password = '',
     $options = []
