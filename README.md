@@ -88,7 +88,7 @@ $pdo = new P3\PDO\Reconnecting\PDO(
 P3\PDO::execute(string $statement, array $input_parameters = [], array $driver_options = [])
 ```
 combines `\PDO::prepare()` and `\PDOStatement::execute()` into one method call,
-returning `false` if either thr statement preparation or execution fails.
+returning `false` if either the statement preparation or execution fails.
 
 This method is inherited by `P3\PDO\Reconnecting\PDO`.
 
