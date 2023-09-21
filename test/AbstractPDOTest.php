@@ -12,6 +12,7 @@ namespace pine3ree\PDOTest\Profiling;
 
 use pine3ree\PDO\Profiling\PDO;
 use pine3ree\PDO\Profiling\PDOStatement;
+use PHPUnit\Framework\Error;
 use PHPUnit\Framework\TestCase;
 
 use function date;
@@ -23,6 +24,8 @@ use function strtotime;
 use function time;
 use function unlink;
 
+use const PHP_VERSION_ID;
+
 abstract class AbstractPDOTest extends TestCase
 {
     /** @var string */
@@ -31,7 +34,7 @@ abstract class AbstractPDOTest extends TestCase
     /** @var string */
     protected $dsn = "sqlite:/tmp/pine3ree-pdo-sqlit-test.db";
 
-    public function setUp()
+    public function setUp(): void
     {
         $pdo = new \PDO($this->dsn);
         $pdo->exec(<<<EOT
@@ -130,10 +133,10 @@ EOT
         self::assertArrayHasKey('enabled', $rows[0]);
         self::assertArrayHasKey('created_at', $rows[0]);
 
-        self::assertSame('1', $rows[0]['id']);
+        self::assertSame(PHP_VERSION_ID < 80100 ? '1' : 1, $rows[0]['id']);
         self::assertSame('username-001', $rows[0]['username']);
         self::assertSame('email-001@emample.com', $rows[0]['email']);
-        self::assertTrue(in_array($rows[0]['enabled'], ['0', '1'], true));
+        self::assertTrue(in_array($rows[0]['enabled'], PHP_VERSION_ID < 80100 ? ['0', '1'] : [0, 1], true));
         self::assertRegExp('/\d{4}\-\d{2}\-\d{2} [0-2][0-9]\:[0-5][0-9]\:[0-5][0-9]/', $rows[0]['created_at']);
         self::assertSame('0000-00-00 00:00:00', $rows[0]['updated_at']);
     }
@@ -150,10 +153,10 @@ EOT
         self::assertArrayHasKey('enabled', $row);
         self::assertArrayHasKey('created_at', $row);
 
-        self::assertSame('9', $row['id']);
+        self::assertSame(PHP_VERSION_ID < 80100 ? '9' : 9, $row['id']);
         self::assertSame('username-009', $row['username']);
         self::assertSame('email-009@emample.com', $row['email']);
-        self::assertTrue(in_array($row['enabled'], ['0', '1'], true));
+        self::assertTrue(in_array($row['enabled'], PHP_VERSION_ID < 80100 ? ['0', '1'] : [0, 1], true));
         self::assertSame('0000-00-00 00:00:00', $row['updated_at']);
     }
 
@@ -166,29 +169,25 @@ EOT
         self::assertFalse($result);
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     */
     public function test_method_execute_triggersWarningForInvalidQueryWithErrorModeWarning()
     {
         $pdo = $this->createPDO();
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
+        $this->expectException(Error\Warning::class);
         $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
-    /**
-     * @expectedException \PDOException
-     */
     public function test_method_execute_throwsPDOExceptionForInvalidQueryWithErrorModeException()
     {
         $pdo = $this->createPDO();
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->expectException(\PDOException::class);
         $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
     // phpcs:enable
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 
