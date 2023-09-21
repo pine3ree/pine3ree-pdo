@@ -6,15 +6,13 @@
     "keywords": [
         "lazy-pdo",
         "pdo",
-        "php",
         "database",
-        "pine3ree",
-        "pine3ree-"
+        "pine3ree"
     ],
     "homepage": "https://github.com/pine3ree/pine3ree-pdo",
     "support": {
         "docs": "https://github.com/pine3ree/pine3ree-pdo/README.md",
-        "license": "https://github.com/pine3ree/pine3ree-pdo/LICENSE",
+        "license": "https://github.com/pine3ree/pine3ree-pdo/LICENSE.md",
         "issues": "https://github.com/pine3ree/pine3ree-pdo/issues",
         "source": "https://github.com/pine3ree/pine3ree-pdo"
     },
