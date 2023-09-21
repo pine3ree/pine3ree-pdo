@@ -1,0 +1,75 @@
+
+language: php
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+env:
+  global:
+    - COMPOSER_ARGS="--no-interaction"
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.0
+      env:
+        - DEPS=lowest
+    - php: 7.0
+      env:
+        - DEPS=latest
+        - PHPCS=true
+        - PHPSTAN=true
+
+    - php: 7.1
+      env:
+        - DEPS=lowest
+    - php: 7.1
+      env:
+        - DEPS=latest
+        - PHPCS=true
+        - PHPSTAN=true
+
+    - php: 7.2
+      env:
+        - DEPS=lowest
+    - php: 7.2
+      env:
+        - DEPS=latest
+        - PHPCS=true
+        - PHPSTAN=true
+
+    - php: 7.3
+      env:
+        - DEPS=lowest
+    - php: 7.3
+      env:
+        - DEPS=latest
+        - PHPCS=true
+        - PHPSTAN=true
+
+    - php: 7.4
+      env:
+        - DEPS=lowest
+    - php: 7.4
+      env:
+        - DEPS=latest
+        - PHPCS=true
+
+before_install:
+
+install:
+  - travis_retry composer install $COMPOSER_ARGS
+  - if [[ $DEPS == 'latest' ]]; then travis_retry composer update $COMPOSER_ARGS ; fi
+  - if [[ $DEPS == 'lowest' ]]; then travis_retry composer update --prefer-lowest --prefer-stable $COMPOSER_ARGS ; fi
+  - stty cols 120 && composer show
+  - cat phpunit.xml.dist
+
+script:
+  - if [[ $PHPCS == 'true' ]]; then composer phpcs ; fi
+  - if [[ $PHPSTAN == 'true' ]]; then composer phpstan ; fi
+
+after_script:
+
+notifications:
+  email: false

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ruleset name="P3 coding standards">
+    <description>P3 coding standards for PHP</description>
+
+    <!-- display progress -->
+    <arg value="p"/>
+    <arg name="colors"/>
+
+    <!-- inherit rules from: -->
+    <rule ref="PSR12">
+        <exclude name="PSR12.ControlStructures.ControlStructureSpacing"/>
+    </rule>
+    <rule ref="PSR2.ControlStructures.ControlStructureSpacing"/>
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+        <properties>
+            <property name="ignoreBlankLines" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- Paths to check -->
+    <file>src</file>
+    <file>test</file>
+</ruleset>
