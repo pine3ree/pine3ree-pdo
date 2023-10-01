@@ -3,6 +3,28 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 2.0.1 - 2023-10-02
+
+### Changed
+
+- Nothing
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Removed
+
+- Nothing
+
+### Fixed
+
+- Fixed the composer urls for the README.md and the LICENSE.md files
+
 ## 2.0.0 - 2023-09-21
 
 ### Changed
