@@ -94,4 +94,15 @@ final class PDOTest extends AbstractPDOTest
 
         $pdo->commit();
     }
+
+    public function testThatGetAttributeReturnsTheCorrectValue()
+    {
+        $ttl = 123;
+        $pdo = $this->createReconnectingPDO($ttl);
+        self::assertSame($ttl, $pdo->getAttribute(PDO::ATTR_CONNECTION_TTL));
+
+        $ttl = 321;
+        $pdo->setAttribute(PDO::ATTR_CONNECTION_TTL, $ttl);
+        self::assertSame($ttl, $pdo->getAttribute(PDO::ATTR_CONNECTION_TTL));
+    }
 }
