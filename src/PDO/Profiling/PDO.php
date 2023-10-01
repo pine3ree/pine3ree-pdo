@@ -21,8 +21,6 @@ use function md5;
 use function microtime;
 use function sprintf;
 
-use const PHP_VERSION_ID;
-
 /**
  * A PDO wrapper for profiling query/command executions
  */
@@ -79,7 +77,7 @@ final class PDO extends \PDO
     }
 
     /** {@inheritDoc} */
-    public function exec($statement): int
+    public function exec(string $statement): int
     {
         return $this->profile(__FUNCTION__, $statement, [$statement]);
     }
@@ -89,7 +87,7 @@ final class PDO extends \PDO
      *
      * If not connected to a database return the attribute value internally stored
      */
-    public function getAttribute($attribute)
+    public function getAttribute(int $attribute)
     {
         return $this->pdo->getAttribute($attribute);
     }
@@ -101,13 +99,13 @@ final class PDO extends \PDO
     }
 
     /** {@inheritDoc} */
-    public function lastInsertId($seqname = null)
+    public function lastInsertId(?string $name = null): string|false
     {
-        return $this->pdo->lastInsertId($seqname);
+        return $this->pdo->lastInsertId($name);
     }
 
     /** {@inheritDoc} */
-    public function prepare($statement, $options = [])
+    public function prepare($statement, $options = []): PDOStatement|false
     {
         return $this->pdo->prepare($statement, $options);
     }
@@ -116,19 +114,15 @@ final class PDO extends \PDO
      * {@inheritDoc}
      * @link https://www.php.net/manual/en/pdo.query.php
      */
-    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
+    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs): PDOStatement|false
     {
-        if ($fetchMode === null && PHP_VERSION_ID < 80000) {
-            $fetchMode = 0;
-        }
-
         return $this->pdo->query($query, $fetchMode, ...$fetchModeArgs);
     }
 
     /** {@inheritDoc} */
-    public function quote($string, $paramtype = null): string
+    public function quote(string $string, int $paramtype = \PDO::PARAM_STR): string|false
     {
-        return $this->pdo->quote($string, $paramtype ?? \PDO::PARAM_STR);
+        return $this->pdo->quote($string, $paramtype);
     }
 
     /** {@inheritDoc} */
@@ -146,7 +140,7 @@ final class PDO extends \PDO
      * Add additional validation for the statement-class attribute if query-logging
      * is enabled
      */
-    public function setAttribute($attribute, $value): bool
+    public function setAttribute(int $attribute, $value): bool
     {
         if ($attribute === \PDO::ATTR_STATEMENT_CLASS) {
             $stmt_class = $value[0] ?? null;

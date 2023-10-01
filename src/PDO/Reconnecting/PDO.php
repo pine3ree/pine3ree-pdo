@@ -51,11 +51,17 @@ final class PDO extends P3PDO
         int $ttl = self::DEFAULT_TTL
     ) {
         parent::__construct($dsn, $username, $password, $options);
+        $this->setTTL($ttl);
+    }
+
+    protected function setTTL(int $ttl): void
+    {
         if ($ttl < 1) {
             throw new InvalidArgumentException(
                 "The expiry time TTL argument must be a positive integer: `{$ttl}` was provided!"
             );
         }
+
         $this->ttl = $ttl;
     }
 
@@ -103,6 +109,21 @@ final class PDO extends P3PDO
         }
 
         return parent::getAttribute($attribute);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Intercept custom 'ttl' attribute and call internal methof setTTL
+     */
+    public function setAttribute(int|string $attribute, $value): bool
+    {
+        if ($attribute === self::ATTR_CONNECTION_TTL) {
+            $this->setTTL($value);
+            return true;
+        }
+
+        return parent::setAttribute($attribute, $value);
     }
 
     /**
