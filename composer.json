@@ -11,8 +11,8 @@
     ],
     "homepage": "https://github.com/pine3ree/pine3ree-pdo",
     "support": {
-        "docs": "https://github.com/pine3ree/pine3ree-pdo/README.md",
-        "license": "https://github.com/pine3ree/pine3ree-pdo/LICENSE.md",
+        "docs": "https://github.com/pine3ree/pine3ree-pdo/blob/2.1.x/README.md",
+        "license": "https://github.com/pine3ree/pine3ree-pdo/blob/2.1.x/LICENSE.md",
         "issues": "https://github.com/pine3ree/pine3ree-pdo/issues",
         "source": "https://github.com/pine3ree/pine3ree-pdo"
     },
