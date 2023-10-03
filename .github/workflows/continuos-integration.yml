@@ -1,0 +1,77 @@
+# GitHub Actions workflow for Continuos Integration tests
+name: "Continuous Integration"
+
+on: [push, pull_request]
+
+env:
+  COMPOSER_ARGS: '--no-interaction --no-progress --prefer-dist --optimize-autoloader'
+
+jobs:
+
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-systems: [ubuntu-latest]
+        php-versions: ['7.4', '8.0']
+        composer-deps: ['lowest', 'latest']
+
+    runs-on: ${{ matrix.operating-systems }}
+
+    steps:
+      - name: Checkout the repository
+        id: repo-checkout
+        uses: actions/checkout@v3
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        id: php-setup
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: xdebug
+
+      - name: Validate composer.json and composer.lock
+        id: composer-validate
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        id: composer-install
+        run: composer install ${{ env.COMPOSER_ARGS }}
+
+      - name: Update Composer dependencies to lowest stable
+        id: composer-update-lowest
+        if: ${{ matrix.composer-deps == 'lowest' }}
+        run: composer update ${{ env.COMPOSER_ARGS }} --prefer-lowest --prefer-stable
+
+      - name: Update Composer dependencies to latest
+        id: composer-update-latest
+        if: ${{ matrix.composer-deps == 'latest' }}
+        run: composer update ${{ env.COMPOSER_ARGS }}
+
+      - name: Code Style check (phpcs)
+        id: phpcs
+        run: composer phpcs
+
+      - name: Static Analysis (phpstan)
+        id: phpstan
+        run: composer phpstan
+
+      - name: Test (phpunit)
+        id: phpunit
+        run: composer test
+
+      - name: Coverage (clover)
+        id: coverage-clover
+        if: ${{ matrix.php-versions == '7.4' }}
+        run: composer test-coverage
+        
