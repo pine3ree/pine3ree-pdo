@@ -14,6 +14,7 @@ use pine3ree\PDO as P3PDO;
 use pine3ree\PDO\Profiling\PDOStatement;
 use PDOException;
 
+use function is_array;
 use function gettype;
 use function is_string;
 use function is_subclass_of;
@@ -30,10 +31,13 @@ final class PDO extends \PDO
 {
     private \PDO $pdo;
 
+    /**
+     * @var array<int, array{sql: string, iter: int, time: float, params: mixed[]|null}>
+     */
     private array $log_statements = [];
 
     /**
-     * @var array|array[]|array<int, array>
+     * @var array<string, array{sql: string, iter: int, time: float}>
      */
     private array $log_reruns = [];
 
@@ -160,7 +164,7 @@ final class PDO extends \PDO
     public function setAttribute($attribute, $value): bool
     {
         if ($attribute === \PDO::ATTR_STATEMENT_CLASS) {
-            $stmt_class = $value[0] ?? null;
+            $stmt_class = is_array($value) ? ($value[0] ?? null) : null;
             if (!is_string($stmt_class)
                 || !(
                     $stmt_class === PDOStatement::class
