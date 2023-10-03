@@ -36,9 +36,14 @@ class PDOStatement extends \PDOStatement
         $this->pdo = $pdo;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+	 * @param int|string $param
+	 */
     public function bindValue($param, $value, $type = null): bool
     {
-        $result = parent::bindValue($param, $value, $type);
+        $result = parent::bindValue($param, $value, $type ?? PDO::PARAM_STR);
         if ($result) {
             $this->params[$param] = $value;
         }
@@ -46,14 +51,19 @@ class PDOStatement extends \PDOStatement
         return $result;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+	 * @param int|string $param
+	 */
     public function bindParam(
         $param,
         &$var,
-        $type = PDO::PARAM_STR,
+        $type = null,
         $maxLength = null,
         $driverOptions = null
     ): bool {
-        $result = parent::bindParam($param, $var, $type, $maxLength, $driverOptions);
+        $result = parent::bindParam($param, $var, $type ?? PDO::PARAM_STR, $maxLength ?? 0, $driverOptions);
         if ($result) {
             $this->params[$param] = $var;
         }
@@ -61,6 +71,11 @@ class PDOStatement extends \PDOStatement
         return $result;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+	 * @param array|mixed[]|array<int|string, mixed> $params
+	 */
     public function execute($params = null): bool
     {
         $t0 = microtime(true);
