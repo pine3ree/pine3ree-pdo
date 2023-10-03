@@ -14,8 +14,10 @@ use InvalidArgumentException;
 use pine3ree\PDO as P3PDO;
 use RuntimeException;
 
+use function gettype;
 use function is_int;
 use function microtime;
+use function sprintf;
 
 /**
  * {@inheritDoc}
@@ -110,7 +112,12 @@ final class PDO extends P3PDO
             return parent::getAttribute($attribute);
         }
 
-        return null;
+        throw new InvalidArgumentException(sprintf(
+            "Invalid PDO attribute type: `%s`, MUST be a standard PDO int attribute"
+            . " constant or the string '%s'",
+            gettype($attribute),
+            self::ATTR_CONNECTION_TTL
+        ));
     }
 
     /**
