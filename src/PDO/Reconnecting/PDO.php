@@ -14,6 +14,7 @@ use InvalidArgumentException;
 use pine3ree\PDO as P3PDO;
 use RuntimeException;
 
+use function is_int;
 use function microtime;
 
 /**
@@ -27,10 +28,10 @@ final class PDO extends P3PDO
     /** The reconnection interval (titme-to-live) */
     private int $ttl;
 
-    /** @var The last re-connection timestamp */
+    /** The last re-connection timestamp */
     private int $lastConnectedAt = 0;
 
-    /** @var The number of connections so far */
+    /** The number of connections so far */
     private int $connectionCount = 0;
 
     /** @var int The default ttl value if not given via constructor */
@@ -42,6 +43,7 @@ final class PDO extends P3PDO
      * {@inheritDoc}
      *
      * @param int $ttl The connection expiry time in seconds (must be positive)
+     * @param array|mixed[]|array<int|string, mixed>|null $options Driver-specific connection options.
      */
     public function __construct(
         string $dsn,
@@ -95,6 +97,8 @@ final class PDO extends P3PDO
      * {@inheritDoc}
      *
      * Return the ttl property value when for the attribute `ttl`
+     *
+     * @param int|string $attribute One of the PDO::ATTR_* constants, or the string "ttl"
      */
     public function getAttribute($attribute)
     {
@@ -102,7 +106,11 @@ final class PDO extends P3PDO
             return $this->ttl;
         }
 
-        return parent::getAttribute($attribute);
+        if (is_int($attribute)) {
+            return parent::getAttribute($attribute);
+        }
+
+        return null;
     }
 
     /**
