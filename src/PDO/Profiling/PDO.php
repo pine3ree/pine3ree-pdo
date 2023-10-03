@@ -107,6 +107,12 @@ final class PDO extends \PDO
         return $this->pdo->prepare($statement, $options);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param array|mixed[] $fetchModeArgs The remainder of the arguments
+     * @see https://www.php.net/manual/en/pdo.query.php
+     */
     public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
     {
         if ($fetchMode === null && PHP_VERSION_ID < 80000) {
@@ -162,7 +168,7 @@ final class PDO extends \PDO
      *
      * @param string $method
      * @param string $sql
-     * @param array $args
+     * @param array|mixed[] $args
      * @return mixed
      */
     private function profile(string $method, string $sql, array $args)
@@ -254,6 +260,8 @@ final class PDO extends \PDO
 
     /**
      * Return the combined log/profiling information
+     *
+     * @return array|mixed[]|array<string, array|float|int>
      */
     public function getLog(): array
     {
