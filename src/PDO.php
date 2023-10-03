@@ -49,10 +49,14 @@ class PDO extends \PDO
      * Gather mandatory information later used to establish a database connection
      * on demand
      *
-     * @param string $dsn The Data Source Name, or DSN, contains the information required to connect to the database.
-     * @param string|null $username The user name for the DSN string. This parameter is optional for some PDO drivers.
-     * @param string|null $password The password for the DSN string. This parameter is optional for some PDO drivers.
-     * @param array|null $options A key=>value array of driver-specific connection options.
+     * @param string $dsn The Data Source Name, or DSN, contains the information
+     *      required to connect to the database.
+     * @param string|null $username The user name for the DSN string.
+     *      This parameter is optional for some PDO drivers.
+     * @param string|null $password The password for the DSN string.
+     *      This parameter is optional for some PDO drivers.
+     * @param array|mixed[]|array<int|string, mixed>|null $options A key=>value
+     *      array of driver-specific connection options.
      */
     public function __construct(
         string $dsn,
@@ -100,8 +104,6 @@ class PDO extends \PDO
 
     /**
      * Has the database connection already been established?
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {
@@ -127,6 +129,11 @@ class PDO extends \PDO
         return '00000';
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return array|mixed[]|array{0: string, 1: string|null, 2: string|null}
+     */
     public function errorInfo(): array
     {
         if (isset($this->pdo)) {
@@ -183,6 +190,11 @@ class PDO extends \PDO
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param array|mixed[]|array<int|string, mixed> $options
+     */
     public function prepare($statement, $options = [])
     {
         return $this->pdo()->prepare($statement, $options);
@@ -191,6 +203,7 @@ class PDO extends \PDO
     /**
      * {@inheritDoc}
      *
+     * @param array|mixed[] $fetchModeArgs The remainder of the arguments
      * @see https://www.php.net/manual/en/pdo.query.php
      */
     public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
@@ -236,8 +249,8 @@ class PDO extends \PDO
      * Prepare and execute a sql-statement
      *
      * @param string $statement The SQL expression possibly including parameter markers
-     * @param array $params Substitution parameters for the markers, if any
-     * @param array $options  Additional driver options, if any
+     * @param array|mixed[]|array<int|string, mixed> $params Substitution parameters for the markers, if any
+     * @param array|string[]|array{0: string, 1: string|null, 2: string|null} $options  Additional driver options, if any
      * @return \PDOStatement|false
      *
      * @see \PDO::prepare()
