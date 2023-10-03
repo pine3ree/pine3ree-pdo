@@ -120,7 +120,7 @@ class PDO extends \PDO
         return $this->pdo()->commit();
     }
 
-    public function errorCode(): string
+    public function errorCode(): ?string
     {
         if (isset($this->pdo)) {
             return $this->pdo->errorCode();

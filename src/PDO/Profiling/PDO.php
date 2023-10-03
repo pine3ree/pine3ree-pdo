@@ -71,7 +71,7 @@ final class PDO extends \PDO
         return $this->pdo->commit();
     }
 
-    public function errorCode(): string
+    public function errorCode(): ?string
     {
         return $this->pdo->errorCode();
     }
