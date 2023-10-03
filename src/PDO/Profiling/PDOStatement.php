@@ -79,15 +79,16 @@ class PDOStatement extends \PDOStatement
     public function execute($params = null): bool
     {
         $t0 = microtime(true);
-
         $result = parent::execute($params);
+        $t1 = microtime(true);
 
         $this->pdo->log(
             $this->queryString,
-            microtime(true) - $t0,
+            $t1 - $t0,
             $params ?? $this->params
         );
 
+        // Clear registered bound values/params after execution
         $this->params = [];
 
         return $result;
