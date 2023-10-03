@@ -39,8 +39,8 @@ class PDOStatement extends \PDOStatement
     /**
      * {@inheritDoc}
      *
-	 * @param int|string $param
-	 */
+     * @param int|string $param
+     */
     public function bindValue($param, $value, $type = null): bool
     {
         $result = parent::bindValue($param, $value, $type ?? PDO::PARAM_STR);
@@ -54,8 +54,8 @@ class PDOStatement extends \PDOStatement
     /**
      * {@inheritDoc}
      *
-	 * @param int|string $param
-	 */
+     * @param int|string $param
+     */
     public function bindParam(
         $param,
         &$var,
@@ -74,8 +74,8 @@ class PDOStatement extends \PDOStatement
     /**
      * {@inheritDoc}
      *
-	 * @param array|mixed[]|array<int|string, mixed> $params
-	 */
+     * @param array|mixed[]|array<int|string, mixed> $params
+     */
     public function execute($params = null): bool
     {
         $t0 = microtime(true);
