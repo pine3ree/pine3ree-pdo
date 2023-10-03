@@ -31,7 +31,7 @@ abstract class AbstractPDOTest extends TestCase
     /** @var string */
     protected $dsn = "sqlite:/tmp/pine3ree-pdo-sqlit-test.db";
 
-    public function setUp()
+    public function setUp(): void
     {
         $pdo = new \PDO($this->dsn);
         $pdo->exec(<<<EOT
@@ -166,29 +166,25 @@ EOT
         self::assertFalse($result);
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Warning
-     */
     public function test_method_execute_triggersWarningForInvalidQueryWithErrorModeWarning()
     {
         $pdo = $this->createPDO();
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
+        $this->expectException(\PHPUnit\Framework\Error\Warning::class);
         $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
-    /**
-     * @expectedException \PDOException
-     */
     public function test_method_execute_throwsPDOExceptionForInvalidQueryWithErrorModeException()
     {
         $pdo = $this->createPDO();
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->expectException(\PDOException::class);
         $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
     }
 
     // phpcs:enable
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 
