@@ -139,7 +139,13 @@ final class PDO extends \PDO
             $fetchMode = 0;
         }
 
-        return $this->pdo->query($query, $fetchMode, ...$fetchModeArgs);
+        $t0 = microtime(true);
+        $result = $this->pdo->query($query, $fetchMode, ...$fetchModeArgs);
+        $t1 = microtime(true);
+
+        $this->log($query, $t1 - $t0);
+
+        return $result;
     }
 
     public function quote($string, $paramtype = null): string
