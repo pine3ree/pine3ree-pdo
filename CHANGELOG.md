@@ -26,8 +26,8 @@ Changes are documented in reverse chronological order by release.
 - Fixed the return type of `PDO::exec()`. The `int` return type declaration in
   `PDO::exec()` was removed as valid return types are `int|false`
 
-- Fixed regression. The query profiling od PDO::query()was accidentaly removed
-  during upgrades to php-7.4/8.0
+- Fixed regression. The query profiling of PDO::query() was accidentaly removed
+  during upgrades to version 2.0.x for php `^7.4 || ^8.0`
 
 
 ## 2.0.1 - 2023-10-02
