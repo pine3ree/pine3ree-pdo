@@ -24,7 +24,11 @@ class PDOStatement extends \PDOStatement
     /** The pine3ree\PDO instance that created this statement */
     private PDO $pdo;
 
-    /** Params accumulator */
+    /**
+     * Params accumulator
+     *
+     * @var array|mixed[]|array<string|int, mixed>
+     */
     private array $params = [];
 
     private function __construct(PDO $pdo)
@@ -32,7 +36,6 @@ class PDOStatement extends \PDOStatement
         $this->pdo = $pdo;
     }
 
-    /** {@inheritDoc} */
     public function bindValue($param, $value, $type = null): bool
     {
         $result = parent::bindValue($param, $value, $type);
@@ -43,7 +46,6 @@ class PDOStatement extends \PDOStatement
         return $result;
     }
 
-    /** {@inheritDoc} */
     public function bindParam(
         $param,
         &$var,
@@ -59,7 +61,6 @@ class PDOStatement extends \PDOStatement
         return $result;
     }
 
-    /** {@inheritDoc} */
     public function execute($params = null): bool
     {
         $t0 = microtime(true);
