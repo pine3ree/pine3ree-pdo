@@ -191,7 +191,7 @@ final class PDO extends \PDO
             return $this->pdo->isConnected();
         }
 
-        return isset($this->pdo);
+        return $this->pdo instanceof \PDO;
     }
 
     /**
