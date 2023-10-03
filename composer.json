@@ -48,14 +48,12 @@
         "phpcbf": "phpcbf",
         "cs": "@phpcs",
         "cbf": "@phpcbf",
-        "stan": "@phpstan",
-        "phpcs": "phpcs",
-        "phpcbf": "phpcbf",
         "check-cs": "@phpcs",
         "fix-cs": "@phpcbf",
         "cs-check": "@phpcs",
         "cs-fix": "@phpcbf",
         "phpstan": "phpstan analyze -c phpstan.neon",
+        "stan": "@phpstan",
         "static-analysis": [
             "@phpstan"
         ],
