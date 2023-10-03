@@ -32,6 +32,9 @@ final class PDO extends \PDO
 
     private array $log_statements = [];
 
+    /**
+     * @var array|array[]|array<int, array>
+     */
     private array $log_reruns = [];
 
     private int $log_count = 0;
@@ -54,32 +57,27 @@ final class PDO extends \PDO
         );
     }
 
-    /** {@inheritDoc} */
     public function beginTransaction(): bool
     {
         return $this->pdo->beginTransaction();
     }
 
-    /** {@inheritDoc} */
     public function commit(): bool
     {
         return $this->pdo->commit();
     }
 
-    /** {@inheritDoc} */
     public function errorCode(): string
     {
         return $this->pdo->errorCode();
     }
 
-    /** {@inheritDoc} */
     public function errorInfo(): array
     {
         return $this->pdo->errorInfo();
     }
 
-    /** {@inheritDoc} */
-    public function exec($statement): int
+    public function exec($statement)
     {
         return $this->profile(__FUNCTION__, $statement, [$statement]);
     }
@@ -94,28 +92,21 @@ final class PDO extends \PDO
         return $this->pdo->getAttribute($attribute);
     }
 
-    /** {@inheritDoc} */
     public function inTransaction(): bool
     {
         return $this->pdo->inTransaction();
     }
 
-    /** {@inheritDoc} */
     public function lastInsertId($seqname = null)
     {
         return $this->pdo->lastInsertId($seqname);
     }
 
-    /** {@inheritDoc} */
     public function prepare($statement, $options = [])
     {
         return $this->pdo->prepare($statement, $options);
     }
 
-    /**
-     * {@inheritDoc}
-     * @link https://www.php.net/manual/en/pdo.query.php
-     */
     public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
     {
         if ($fetchMode === null && PHP_VERSION_ID < 80000) {
@@ -125,13 +116,11 @@ final class PDO extends \PDO
         return $this->pdo->query($query, $fetchMode, ...$fetchModeArgs);
     }
 
-    /** {@inheritDoc} */
     public function quote($string, $paramtype = null): string
     {
         return $this->pdo->quote($string, $paramtype ?? \PDO::PARAM_STR);
     }
 
-    /** {@inheritDoc} */
     public function rollBack(): bool
     {
         return $this->pdo->rollBack();
