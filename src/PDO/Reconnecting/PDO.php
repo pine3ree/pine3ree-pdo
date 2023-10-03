@@ -12,7 +12,7 @@ namespace pine3ree\PDO\Reconnecting;
 
 use InvalidArgumentException;
 use pine3ree\PDO as P3PDO;
-use RuntimeException;
+use Exception;
 
 use function gettype;
 use function is_int;
@@ -82,17 +82,17 @@ final class PDO extends P3PDO
             $this->pdo = null;
         }
 
-        $this->pdo = parent::pdo();
+        try {
+            $this->pdo = parent::pdo();
 
-        if (isset($this->pdo)) {
             $this->lastConnectedAt = microtime(true);
             $this->connectionCount += 1;
-            return $this->pdo;
-        }
 
-        throw new RuntimeException(
-            "Unable to estabilish a PDO database connection!"
-        );
+            return $this->pdo;
+            // v-spacer
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
 
     /**
