@@ -250,7 +250,7 @@ class PDO extends \PDO
      *
      * @param string $statement The SQL expression possibly including parameter markers
      * @param array|mixed[]|array<int|string, mixed> $params Substitution parameters for the markers, if any
-     * @param array|string[]|array{0: string, 1: string|null, 2: string|null} $options  Additional driver options, if any
+     * @param array|string[]|array{0: string, 1: string|null, 2: string|null} $options Additional driver options, if any
      * @return \PDOStatement|false
      *
      * @see \PDO::prepare()
