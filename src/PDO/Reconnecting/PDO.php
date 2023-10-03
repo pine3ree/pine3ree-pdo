@@ -29,7 +29,7 @@ final class PDO extends P3PDO
     private int $ttl;
 
     /** The last re-connection timestamp */
-    private int $lastConnectedAt = 0;
+    private float $lastConnectedAt = 0;
 
     /** The number of connections so far */
     private int $connectionCount = 0;
