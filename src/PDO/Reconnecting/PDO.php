@@ -101,6 +101,7 @@ final class PDO extends P3PDO
      * Return the ttl property value when for the attribute `ttl`
      *
      * @param int|string $attribute One of the PDO::ATTR_* constants, or the string "ttl"
+     * @throws InvalidArgumentException
      */
     public function getAttribute($attribute)
     {
