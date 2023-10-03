@@ -3,6 +3,30 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 2.0.2 - 2023-10-02
+
+### Changed
+
+- Necessary BC break; see the "Fixed" section below
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Removed
+
+- Removed the internal profile method
+
+### Fixed
+
+- Fixed the return type of `PDO::exec()`. The `int` return type declaration in
+  `PDO::exec()` was removed as valid return types are `int|false`
+
+
 ## 2.0.1 - 2023-10-02
 
 ### Changed
