@@ -3,6 +3,56 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 2.0.2 - 2023-10-02
+
+### Changed
+
+- Necessary BC break; see the "Fixed" section below
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Removed
+
+- Removed the internal profile method
+
+### Fixed
+
+- Fixed the return type of `PDO::exec()`. The `int` return type declaration in
+  `PDO::exec()` was removed as valid return types are `int|false`
+
+- Fixed regression. The query profiling of PDO::query() was accidentaly removed
+  during upgrades to version 2.0.x for php `^7.4 || ^8.0`
+
+
+## 2.0.1 - 2023-10-02
+
+### Changed
+
+- Nothing
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Removed
+
+- Nothing
+
+### Fixed
+
+- Fixed the composer urls for the README.md and the LICENSE.md files
+
+
 ## 2.0.0 - 2023-09-21
 
 ### Changed
