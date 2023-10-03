@@ -1,8 +1,11 @@
-includes:
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
 parameters:
+    level: max
+    paths:
+        - src
     fileExtensions:
         - php
-    reportUnmatchedIgnoredErrors: true
+    checkGenericClassInNonGenericObjectType: false
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#PDO::\_\_construct\(\) does not call parent constructor from PDO#'
+        - '#Parameter \#1 \$name of method PDO\:\:lastInsertId\(\) expects string\, string\|null given#'
