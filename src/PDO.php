@@ -25,14 +25,24 @@ class PDO extends \PDO
     /** The wrapped php-PDO instance */
     protected ?\PDO $pdo = null;
 
-    protected ?string $dsn = null;
+    protected string $dsn;
 
     protected ?string $username = null;
 
     protected ?string $password = null;
 
+    /**
+     * Driver-specific connection options
+     *
+     * @var array|mixed[]|array<int|string, mixed>|null
+     */
     protected ?array $options = null;
 
+    /**
+     * PDO database connection attributes
+     *
+     * @var array|mixed[]|array<int|string, mixed>
+     */
     protected array $attributes = [];
 
     /**
@@ -80,7 +90,7 @@ class PDO extends \PDO
             $this->options
         );
 
-        // apply preset attributes, if any
+        // Apply preset attributes, if any
         foreach ($this->attributes as $attribute => $value) {
             $this->pdo->setAttribute($attribute, $value);
         }
@@ -98,19 +108,16 @@ class PDO extends \PDO
         return isset($this->pdo);
     }
 
-    /** {@inheritDoc} */
     public function beginTransaction(): bool
     {
         return $this->pdo()->beginTransaction();
     }
 
-    /** {@inheritDoc} */
     public function commit(): bool
     {
         return $this->pdo()->commit();
     }
 
-    /** {@inheritDoc} */
     public function errorCode(): string
     {
         if (isset($this->pdo)) {
@@ -120,7 +127,6 @@ class PDO extends \PDO
         return '00000';
     }
 
-    /** {@inheritDoc} */
     public function errorInfo(): array
     {
         if (isset($this->pdo)) {
@@ -130,8 +136,7 @@ class PDO extends \PDO
         return ['00000', null, null];
     }
 
-    /** {@inheritDoc} */
-    public function exec($statement): int
+    public function exec($statement)
     {
         return $this->pdo()->exec($statement);
     }
@@ -139,7 +144,7 @@ class PDO extends \PDO
     /**
      * {@inheritDoc}
      *
-     * If not connected to a database return the attribute value internally stored
+     * If not connected to a database return the attribute value stored internally
      */
     public function getAttribute($attribute)
     {
@@ -160,7 +165,6 @@ class PDO extends \PDO
         return $this->attributes[$attribute] ?? null;
     }
 
-    /** {@inheritDoc} */
     public function inTransaction(): bool
     {
         if (isset($this->pdo)) {
@@ -170,7 +174,6 @@ class PDO extends \PDO
         return false;
     }
 
-    /** {@inheritDoc} */
     public function lastInsertId($seqname = null)
     {
         if (isset($this->pdo)) {
@@ -180,7 +183,6 @@ class PDO extends \PDO
         return false;
     }
 
-    /** {@inheritDoc} */
     public function prepare($statement, $options = [])
     {
         return $this->pdo()->prepare($statement, $options);
@@ -188,6 +190,7 @@ class PDO extends \PDO
 
     /**
      * {@inheritDoc}
+     *
      * @see https://www.php.net/manual/en/pdo.query.php
      */
     public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
@@ -199,13 +202,11 @@ class PDO extends \PDO
         return $this->pdo()->query($query, $fetchMode, ...$fetchModeArgs);
     }
 
-    /** {@inheritDoc} */
     public function quote($string, $paramtype = null)
     {
         return $this->pdo()->quote($string, $paramtype ?? \PDO::PARAM_STR);
     }
 
-    /** {@inheritDoc} */
     public function rollBack(): bool
     {
         return $this->pdo()->rollBack();
