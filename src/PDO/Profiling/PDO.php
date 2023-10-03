@@ -72,6 +72,11 @@ final class PDO extends \PDO
         return $this->pdo->errorCode();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return array|mixed[]|array{0: string, 1: string|null, 2: string|null}
+     */
     public function errorInfo(): array
     {
         return $this->pdo->errorInfo();
@@ -108,6 +113,11 @@ final class PDO extends \PDO
         return $this->pdo->lastInsertId($seqname);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param array|mixed[]|array<int|string, mixed> $options
+     */
     public function prepare($statement, $options = [])
     {
         return $this->pdo->prepare($statement, $options);
@@ -187,9 +197,9 @@ final class PDO extends \PDO
      * Prepare and execute a sql-statement
      *
      * @param string $statement The SQL expression possibly including parameter markers
-     * @param array $params Substitution parameters for the markers, if any
-     * @param array $options  Additional driver options, if any
-     * @return PDOStatement|false
+     * @param array|mixed[]|array<int|string, mixed> $params Substitution parameters for the markers, if any
+     * @param array|string[]|array{0: string, 1: string|null, 2: string|null} $options  Additional driver options, if any
+     * @return \PDOStatement|false
      *
      * @see \PDO::prepare()
      * @see \PDOStatement::execute()
@@ -215,7 +225,7 @@ final class PDO extends \PDO
      *
      * @param string $sql The sql statement
      * @param float $microtime The execution time in seconds.microseconds
-     * @param array|null $params The parameters for the sql markes
+     * @param array|mixed[]|array<int|string, mixed>|null $params The parameters for the sql markes
      * @internal
      */
     public function log(
