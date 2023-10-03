@@ -10,13 +10,11 @@
 
 namespace pine3ree\PDOTest\Profiling;
 
-use pine3ree\PDO\Profiling\PDO;
-use pine3ree\PDO\Profiling\PDOStatement;
 use PHPUnit\Framework\TestCase;
 
 use function date;
-use function is_file;
 use function in_array;
+use function is_file;
 use function rand;
 use function sprintf;
 use function strtotime;
