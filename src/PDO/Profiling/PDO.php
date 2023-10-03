@@ -79,7 +79,13 @@ final class PDO extends \PDO
 
     public function exec($statement)
     {
-        return $this->profile(__FUNCTION__, $statement, [$statement]);
+        $t0 = microtime(true);
+        $result = $this->pdo->exec($statement);
+        $t1 = microtime(true);
+
+        $this->log($statement, $t1 - $t0);
+
+        return $result;
     }
 
     /**
@@ -161,23 +167,6 @@ final class PDO extends \PDO
         }
 
         return $this->pdo->setAttribute($attribute, $value);
-    }
-
-    /**
-     * Profile the call to the provided method with given arguments
-     *
-     * @param string $method
-     * @param string $sql
-     * @param array|mixed[] $args
-     * @return mixed
-     */
-    private function profile(string $method, string $sql, array $args)
-    {
-        $t0 = microtime(true);
-        $result = $this->pdo->{$method}(...$args);
-        $this->log($sql, microtime(true) - $t0);
-
-        return $result;
     }
 
     /**
