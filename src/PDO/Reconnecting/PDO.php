@@ -114,6 +114,14 @@ final class PDO extends P3PDO
     }
 
     /**
+     * Return the connection expiry time in seconds
+     */
+    public function getTTL(): int
+    {
+        return $this->ttl;
+    }
+
+    /**
      * Return the number of connection initiated so far
      *
      * @return int
