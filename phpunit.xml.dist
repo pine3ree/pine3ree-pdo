@@ -4,9 +4,6 @@
     <include>
       <directory suffix=".php">./src</directory>
     </include>
-    <exclude>
-      <file>./src/migrate.php</file>
-    </exclude>
   </coverage>
   <testsuites>
     <testsuite name="pine3ree-pdo">
