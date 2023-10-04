@@ -202,8 +202,6 @@ class PDO extends \PDO
      * {@inheritDoc}
      *
      * @see https://www.php.net/manual/en/pdo.query.php
-     *
-     * @param array|mixed[] $fetchModeArgs The remainder of the arguments
      */
     public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs): \PDOStatement|false
     {
