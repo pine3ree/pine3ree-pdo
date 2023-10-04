@@ -3,9 +3,9 @@
 /**
  * @package   p3-pdo
  * @see       https://github.com/pine3ree/p3-pdo for the canonical source repository
- * @copyright https://github.com/pine3ree/p3-pdo/blob/master/COPYRIGHT.md
+ * @copyright https://github.com/pine3ree/p3-pdo/blob/1.2.x/COPYRIGHT.md
  * @author    pine3ree https://github.com/pine3ree
- * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
+ * @license   https://github.com/pine3ree/p3-pdo/blob/1.2.x/LICENSE.md New BSD License
  */
 
 namespace pine3ree\PDOTest\Profiling;
@@ -14,8 +14,12 @@ use pine3ree\PDOTest\Profiling\AbstractPDOTest;
 use pine3ree\PDO as LazyPDO;
 use pine3ree\PDO\Profiling\PDO;
 use pine3ree\PDO\Profiling\PDOStatement;
+use ReflectionClass;
 
+use function date;
 use function md5;
+use function mt_rand;
+use function time;
 
 final class PDOTest extends AbstractPDOTest
 {
@@ -32,6 +36,15 @@ final class PDOTest extends AbstractPDOTest
     protected function createLazyPDO(): PDO
     {
         return new PDO(new LazyPDO($this->dsn, '', ''));
+    }
+
+    protected function getDecoratedPDO(PDO $pdo): \PDO
+    {
+        $rc = new ReflectionClass($pdo);
+        $rp = $rc->getProperty('pdo');
+        $rp->setAccessible(true);
+
+        return $rp->getValue($pdo);
     }
 
     // phpcs:disable
@@ -64,6 +77,134 @@ final class PDOTest extends AbstractPDOTest
         $pdo = $this->createLazyPDO();
         $pdo->beginTransaction();
         self::assertTrue($pdo->isConnected());
+    }
+
+    public function test_method_quote_createsDbConnection()
+    {
+        $pdo = $this->createPDO();
+
+        $pdo->quote('!"£$%&/()=?^^', \PDO::PARAM_STR);
+
+        self::assertTrue($pdo->isConnected());
+
+        $phpPdo = $this->getDecoratedPDO($pdo);
+
+        self::assertSame(
+            $pdo->quote('!"£$%&/()=?^^', \PDO::PARAM_STR),
+            $phpPdo->quote('!"£$%&/()=?^^', \PDO::PARAM_STR)
+        );
+    }
+
+    public function test_methods_setAttribute_and_getAttribute()
+    {
+        $attribute = \PDO::ATTR_DEFAULT_FETCH_MODE;
+        $attrValue = \PDO::FETCH_ASSOC;
+
+        $pdo = $this->createLazyPDO();
+        $pdo->setAttribute($attribute, $attrValue);
+
+        self::assertSame($attrValue, $pdo->getAttribute($attribute));
+
+        $phpPdo = $this->getDecoratedPDO($pdo);
+
+        self::assertSame($attrValue, $phpPdo->getAttribute($attribute));
+    }
+
+    public function test_methods_errorCode_and_errorInfo_returnSameValuesAsDecoratedPdo()
+    {
+        $pdo = $this->createPDO();
+
+        // Silence errors
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+
+        $phpPdo = $this->getDecoratedPDO($pdo);
+
+        self::assertSame('00000', $pdo->errorCode());
+        self::assertSame('00000', $phpPdo->errorCode());
+
+        $pdo->prepare('bogus sql');
+
+        self::assertNotSame('000000', $pdo->errorCode());
+        self::assertNotSame('000000', $phpPdo->errorCode());
+
+        self::assertSame($phpPdo->errorCode(), $pdo->errorCode());
+        self::assertSame($phpPdo->errorInfo(), $pdo->errorInfo());
+    }
+
+    public function test_method_lastInsertId_returnsSameValuesAsDecoratedPdo()
+    {
+        $pdo = $this->createPDO();
+
+        $phpPdo = $this->getDecoratedPDO($pdo);
+
+        self::assertSame($phpPdo->lastInsertId(), $pdo->lastInsertId());
+
+        $pdo->exec(self::SQL_INSERT);
+
+        $time = time();
+
+        $stmt = $pdo->prepare(self::SQL_INSERT);
+
+        $stmt->execute([
+            ':username'   => "username-{$time}",
+            ':email'      => "email-{$time}@emample.com",
+            ':enabled'    => mt_rand(0, 1),
+            ':created_at' => date('Y-m-d H:i:s', $time),
+        ]);
+
+        self::assertSame(1, $stmt->rowCount());
+        self::assertSame($phpPdo->lastInsertId(), $pdo->lastInsertId());
+    }
+
+    public function testTransactionMethodsWhenConnected()
+    {
+        $pdo = $this->createPDO();
+
+        $phpPdo = $this->getDecoratedPDO($pdo);
+
+        //----------------------------------------------------------------------
+
+        $pdo->beginTransaction();
+
+        self::assertTrue($pdo->inTransaction());
+        self::assertTrue($phpPdo->inTransaction());
+
+        $stmt = $pdo->prepare(self::SQL_UPDATE);
+
+        $result = $stmt->execute([
+            'enabled'    => mt_rand(0, 1),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'id'         => 4,
+        ]);
+
+        self::assertSame(3, $stmt->rowCount());
+
+        $pdo->commit();
+
+        self::assertFalse($pdo->inTransaction());
+        self::assertFalse($phpPdo->inTransaction());
+
+        //----------------------------------------------------------------------
+
+        $pdo->beginTransaction();
+
+        self::assertTrue($pdo->inTransaction());
+        self::assertTrue($phpPdo->inTransaction());
+
+        $stmt = $pdo->prepare(self::SQL_UPDATE);
+
+        $result = $stmt->execute([
+            'enabled'    => mt_rand(0, 1),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'id'         => 4,
+        ]);
+
+        self::assertSame(3, $stmt->rowCount());
+
+        $pdo->rollBack();
+
+        self::assertFalse($pdo->inTransaction());
+        self::assertFalse($phpPdo->inTransaction());
     }
 
     // phpcs:enable
