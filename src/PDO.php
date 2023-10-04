@@ -62,7 +62,6 @@ class PDO extends \PDO
     /**
      * Establish or re-establish a pdo-database connection and return it
      *
-     * @return \PDO
      * @throws \PDOException
      */
     protected function pdo(): \PDO
@@ -88,27 +87,22 @@ class PDO extends \PDO
 
     /**
      * Has the database connection already been established?
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {
         return isset($this->pdo);
     }
 
-    /** {@inheritDoc} */
     public function beginTransaction(): bool
     {
         return $this->pdo()->beginTransaction();
     }
 
-    /** {@inheritDoc} */
     public function commit(): bool
     {
         return $this->pdo()->commit();
     }
 
-    /** {@inheritDoc} */
     public function errorCode(): string
     {
         if (isset($this->pdo)) {
@@ -118,7 +112,6 @@ class PDO extends \PDO
         return '00000';
     }
 
-    /** {@inheritDoc} */
     public function errorInfo(): array
     {
         if (isset($this->pdo)) {
@@ -128,7 +121,6 @@ class PDO extends \PDO
         return ['00000', null, null];
     }
 
-    /** {@inheritDoc} */
     public function exec($statement): int
     {
         return $this->pdo()->exec($statement);
@@ -158,7 +150,6 @@ class PDO extends \PDO
         return $this->attributes[$attribute] ?? null;
     }
 
-    /** {@inheritDoc} */
     public function inTransaction(): bool
     {
         if (isset($this->pdo)) {
@@ -168,7 +159,6 @@ class PDO extends \PDO
         return false;
     }
 
-    /** {@inheritDoc} */
     public function lastInsertId($name = null): string
     {
         if (isset($this->pdo)) {
@@ -178,28 +168,21 @@ class PDO extends \PDO
         return '';
     }
 
-    /** {@inheritDoc} */
     public function prepare($statement, $driver_options = [])
     {
         return $this->pdo()->prepare($statement, $driver_options);
     }
 
-    /**
-     * {@inheritDoc}
-     * @link https://www.php.net/manual/en/pdo.query.php
-     */
     public function query(string $statement, int $fetch_mode = null, $fetch_argument = null, $fetch_extra = null)
     {
         return $this->pdo()->query(...func_get_args());
     }
 
-    /** {@inheritDoc} */
     public function quote($string, $paramtype = null): string
     {
         return $this->pdo()->quote($string, $paramtype);
     }
 
-    /** {@inheritDoc} */
     public function rollBack(): bool
     {
         return $this->pdo()->rollBack();
@@ -210,9 +193,6 @@ class PDO extends \PDO
      *
      * Store the attribute internally so that if not connected to a database it
      * may be used when the connection is established
-     *
-     * Add additional validation for the statement-class attribute if query-logging
-     * is enabled
      */
     public function setAttribute($attribute, $value): bool
     {

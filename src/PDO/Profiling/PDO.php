@@ -56,31 +56,26 @@ final class PDO extends \PDO
         );
     }
 
-    /** {@inheritDoc} */
     public function beginTransaction(): bool
     {
         return $this->pdo->beginTransaction();
     }
 
-    /** {@inheritDoc} */
     public function commit(): bool
     {
         return $this->pdo->commit();
     }
 
-    /** {@inheritDoc} */
     public function errorCode(): string
     {
         return $this->pdo->errorCode();
     }
 
-    /** {@inheritDoc} */
     public function errorInfo(): array
     {
         return $this->pdo->errorInfo();
     }
 
-    /** {@inheritDoc} */
     public function exec($statement): int
     {
         return $this->profile(__FUNCTION__, $statement, [$statement]);
@@ -96,19 +91,16 @@ final class PDO extends \PDO
         return $this->pdo->getAttribute($attribute);
     }
 
-    /** {@inheritDoc} */
     public function inTransaction(): bool
     {
         return $this->pdo->inTransaction();
     }
 
-    /** {@inheritDoc} */
     public function lastInsertId($name = null): string
     {
         return $this->pdo->lastInsertId($name);
     }
 
-    /** {@inheritDoc} */
     public function prepare($statement, $driver_options = [])
     {
         return $this->pdo->prepare($statement, $driver_options);
@@ -123,27 +115,16 @@ final class PDO extends \PDO
         return $this->profile(__FUNCTION__, $statement, func_get_args());
     }
 
-    /** {@inheritDoc} */
     public function quote($string, $paramtype = null): string
     {
         return $this->pdo->quote($string, $paramtype);
     }
 
-    /** {@inheritDoc} */
     public function rollBack(): bool
     {
         return $this->pdo->rollBack();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Store the attribute internally so that if not connected to a database it
-     * may be used when the connection is established
-     *
-     * Add additional validation for the statement-class attribute if query-logging
-     * is enabled
-     */
     public function setAttribute($attribute, $value): bool
     {
         if ($attribute === self::ATTR_STATEMENT_CLASS) {
@@ -177,8 +158,6 @@ final class PDO extends \PDO
 
     /**
      * Has the database connection already been established?
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {
@@ -255,8 +234,6 @@ final class PDO extends \PDO
 
     /**
      * Return the combined log/profiling information
-     *
-     * @return array
      */
     public function getLog(): array
     {
