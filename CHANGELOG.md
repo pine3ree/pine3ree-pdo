@@ -2,6 +2,12 @@
 
 Changes are documented in reverse chronological order by release.
 
+## 1.2.x
+
+### Deprecated
+
+- Renamed the old namespace `P3\` to `pine3ree\`
+
 
 ## 1.1.2 - 2023-10-04
 
