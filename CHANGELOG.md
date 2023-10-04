@@ -3,6 +3,30 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 3.0.0 - 2023-10-04
+
+### Changed
+
+- This version introduces a few BC breaks as it implements all type-declaration
+  of the PDO library for php-8.2 without error suppression via php attributes
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Removed
+
+- Nothing
+
+### Fixed
+
+- Nothing
+
+
 ## 2.0.2 - 2023-10-02
 
 ### Changed
