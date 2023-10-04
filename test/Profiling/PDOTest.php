@@ -8,12 +8,12 @@
  * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
-namespace P3\PDOTest\Profiling;
+namespace pine3ree\PDOTest\Profiling;
 
-use P3\PDOTest\Profiling\AbstractPDOTest;
-use P3\PDO as LazyPDO;
-use P3\PDO\Profiling\PDO;
-use P3\PDO\Profiling\PDOStatement;
+use pine3ree\PDOTest\Profiling\AbstractPDOTest;
+use pine3ree\PDO as LazyPDO;
+use pine3ree\PDO\Profiling\PDO;
+use pine3ree\PDO\Profiling\PDOStatement;
 
 use function md5;
 

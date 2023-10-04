@@ -8,10 +8,10 @@
  * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
-namespace P3\PDOTest\Profiling;
+namespace pine3ree\PDOTest\Profiling;
 
-use P3\PDO\Profiling\PDO;
-use P3\PDO\Profiling\PDOStatement;
+use pine3ree\PDO\Profiling\PDO;
+use pine3ree\PDO\Profiling\PDOStatement;
 use PHPUnit\Framework\TestCase;
 
 use function date;

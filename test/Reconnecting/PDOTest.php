@@ -8,11 +8,11 @@
  * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
-namespace P3\PDOTest\Reconnecting;
+namespace pine3ree\PDOTest\Reconnecting;
 
 use InvalidArgumentException;
-use P3\PDO\Reconnecting\PDO;
-use P3\PDOTest\Profiling\AbstractPDOTest;
+use pine3ree\PDO\Reconnecting\PDO;
+use pine3ree\PDOTest\Profiling\AbstractPDOTest;
 
 final class PDOTest extends AbstractPDOTest
 {
