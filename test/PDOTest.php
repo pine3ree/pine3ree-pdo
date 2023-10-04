@@ -13,6 +13,7 @@ namespace pine3ree\PDOTest;
 use pine3ree\PDO;
 use pine3ree\PDOTest\Profiling\AbstractPDOTest;
 use ReflectionClass;
+use stdClass;
 
 use function date;
 use function mt_rand;
@@ -210,6 +211,74 @@ final class PDOTest extends AbstractPDOTest
 
         self::assertFalse($pdo->inTransaction());
         self::assertFalse($phpPdo->inTransaction());
+    }
+
+    public function test_method_query()
+    {
+        $pdo = $this->createPDO();
+
+        $stmt = $pdo->query("SELECT * FROM user WHERE id = 1");
+
+        $row = $stmt->fetch();
+
+        self::assertIsArray($row);
+        self::assertArrayHasKey('id', $row);
+        self::assertArrayHasKey(0, $row);
+
+        self::assertSame($row['id'], $row[0], $row['id']);
+    }
+
+    public function test_method_query_with_fetchMode()
+    {
+        $pdo = $this->createPDO();
+
+        $stmt = $pdo->query("SELECT * FROM user WHERE id = 2", \PDO::FETCH_ASSOC);
+
+        $row = $stmt->fetch();
+
+        self::assertIsArray($row);
+        self::assertArrayHasKey('id', $row);
+        self::assertArrayNotHasKey(0, $row);
+
+        // SInce php 8.1 integer columns are retuned as php int
+        self::assertSame('2', $row['id']);
+    }
+
+    public function test_method_query_with_fetchInto()
+    {
+        $pdo = $this->createPDO();
+
+        $obj = new stdClass();
+
+        $stmt = $pdo->query("SELECT * FROM user WHERE id = 3", \PDO::FETCH_INTO, $obj);
+
+        $obj = $stmt->fetch();
+
+        self::assertInstanceOf(stdClass::class, $obj);
+        self::assertSame('username-003', $obj->username);
+    }
+
+    public function test_method_query_with_fetchColumn()
+    {
+        $pdo = $this->createPDO();
+
+        $stmt = $pdo->query("SELECT * FROM user WHERE id = 4", \PDO::FETCH_COLUMN, 1);
+
+        $value = $stmt->fetch();
+
+        self::assertSame('username-004', $value);
+    }
+
+    public function test_method_query_with_fetchClass()
+    {
+        $pdo = $this->createPDO();
+
+        $stmt = $pdo->query("SELECT * FROM user WHERE id = 5", \PDO::FETCH_CLASS, stdClass::class);
+
+        $obj = $stmt->fetch();
+
+        self::assertInstanceOf(stdClass::class, $obj);
+        self::assertSame('username-005', $obj->username);
     }
 
     // phpcs:enable
