@@ -8,7 +8,10 @@ expiration with auto-reconnect and query logging/profiling.
 
 ## Installation
 
-This library requires PHP ^7.4 || ^8.0.0.
+This version (`3.0.x`) of the library requires `php ~8.0 || ~8.1.0 || ~8.2.0`.
+
+For php-7.4 support please use version `2.0.x`.
+
 You can install it library using Composer (with "minimum-stability": "dev"):
 
 ```bash
@@ -74,8 +77,7 @@ $pdo = new pine3ree\PDO\Reconnecting\PDO(
     $username = '',
     $password = '',
     $options = [],
-    $ttl = 6, // drops the current connection after 6 seconds and establish a new one on demand
-    $log = false
+    $ttl = 6 // drops the current connection after 6 seconds and establish a new one on demand
 );
 ```
 
