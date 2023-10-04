@@ -13,6 +13,8 @@ namespace pine3ree\PDOTest\Reconnecting;
 use InvalidArgumentException;
 use pine3ree\PDO\Reconnecting\PDO;
 use pine3ree\PDOTest\Profiling\AbstractPDOTest;
+use PDOException;
+use ReflectionClass;
 
 final class PDOTest extends AbstractPDOTest
 {
@@ -95,14 +97,83 @@ final class PDOTest extends AbstractPDOTest
         $pdo->commit();
     }
 
-    public function testThatGetAttributeReturnsTheCorrectValue()
+    public function testThatPdoThrowsPDOExceptionIfCannotConnectToDb()
     {
-        $ttl = 123;
-        $pdo = $this->createReconnectingPDO($ttl);
-        self::assertSame($ttl, $pdo->getAttribute(PDO::ATTR_CONNECTION_TTL));
+        $ttl = 42;
+        $fetchMode = \PDO::FETCH_ASSOC;
+        $pdo = new PDO('mysql://db=non-existent', '', '', [], $ttl);
 
-        $ttl = 321;
-        $pdo->setAttribute(PDO::ATTR_CONNECTION_TTL, $ttl);
-        self::assertSame($ttl, $pdo->getAttribute(PDO::ATTR_CONNECTION_TTL));
+        $rc = new ReflectionClass(PDO::class);
+        $rm = $rc->getMethod('pdo');
+        $rm->setAccessible(true);
+
+        $this->expectException(PDOException::class);
+        $rm->invoke($pdo);
+    }
+
+    public function testThatGetAttributeWithCustomStringKeyRetunsValidTtlValue()
+    {
+        $ttl = 42;
+        $pdo = $this->createReconnectingPDO($ttl);
+
+        self::assertSame($ttl, $pdo->getAttribute($pdo::ATTR_CONNECTION_TTL));
+        self::assertSame($ttl, $pdo->getAttribute('ttl'));
+    }
+
+    public function testThatGetAttributeWithIntKeyFallsBackToStandardBehavior()
+    {
+        $ttl = 1;
+        $fetchMode = \PDO::FETCH_ASSOC;
+        $pdo = $this->createReconnectingPDO($ttl);
+        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode);
+
+        self::assertSame($fetchMode, $pdo->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE));
+
+        $rc = new ReflectionClass(PDO::class);
+        $rm = $rc->getMethod('pdo');
+        $rm->setAccessible(true);
+
+        $wrappedPdo = $rm->invoke($pdo);
+        self::assertSame($fetchMode, $wrappedPdo->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE));
+    }
+
+    public function testThatGetAttributeWithInvalidKeyTypeRaisesException()
+    {
+        $pdo = $this->createReconnectingPDO(42);
+
+        $this->expectException(InvalidArgumentException::class);
+        $pdo->getAttribute('abc');
+    }
+
+    public function testThatSetAttributeWithInvalidKeyTypeRaisesException()
+    {
+        $pdo = $this->createReconnectingPDO(42);
+
+        $this->expectException(InvalidArgumentException::class);
+        $pdo->setAttribute('abc', 123);
+    }
+
+    public function testThatSetTtlAttributeWithInvalidValueRaisesException()
+    {
+        $pdo = $this->createReconnectingPDO(42);
+
+        $this->expectException(InvalidArgumentException::class);
+        $pdo->setAttribute('ttl', 'ABC');
+    }
+
+    public function testThatSetTtlAttributeWithValue()
+    {
+        $pdo = $this->createReconnectingPDO(1);
+        $pdo->setAttribute('ttl', 42);
+
+        self::assertSame(42, $pdo->getAttribute('ttl'));
+    }
+
+    public function testGetTTL()
+    {
+        $ttl = 42;
+        $pdo = $this->createReconnectingPDO($ttl);
+
+        self::assertSame($ttl, $pdo->getTTL());
     }
 }
