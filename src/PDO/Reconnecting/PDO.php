@@ -116,7 +116,7 @@ final class PDO extends P3PDO
      *
      * @throws InvalidArgumentException
      */
-    public function getAttribute(int|string $attribute)
+    public function getAttribute(int|string $attribute): mixed
     {
         if ($attribute === self::ATTR_CONNECTION_TTL) {
             return $this->ttl;

@@ -100,7 +100,7 @@ final class PDO extends \PDO
      *
      * If not connected to a database return the attribute value internally stored
      */
-    public function getAttribute(int $attribute)
+    public function getAttribute(int $attribute): mixed
     {
         return $this->pdo->getAttribute($attribute);
     }
@@ -132,7 +132,7 @@ final class PDO extends \PDO
      *
      * @param array|mixed[] $fetchModeArgs The remainder of the arguments
      */
-    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs): \PDOStatement|false
+    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs): \PDOStatement|false
     {
         $t0 = microtime(true);
         $result = $this->pdo->query($query, $fetchMode, ...$fetchModeArgs);

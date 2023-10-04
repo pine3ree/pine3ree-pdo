@@ -151,7 +151,7 @@ class PDO extends \PDO
      *
      * If not connected to a database return the attribute value stored internally
      */
-    public function getAttribute(int $attribute)
+    public function getAttribute(int $attribute): mixed
     {
         if (isset($this->pdo)) {
             return $this->pdo->getAttribute($attribute);
@@ -205,7 +205,7 @@ class PDO extends \PDO
      *
      * @param array|mixed[] $fetchModeArgs The remainder of the arguments
      */
-    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs): \PDOStatement|false
+    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs): \PDOStatement|false
     {
         return $this->pdo()->query($query, $fetchMode, ...$fetchModeArgs);
     }
@@ -225,9 +225,6 @@ class PDO extends \PDO
      *
      * Store the attribute internally so that if not connected to a database it
      * may be used when the connection is established
-     *
-     * Add additional validation for the statement-class attribute if query-logging
-     * is enabled
      */
     public function setAttribute(int $attribute, $value): bool
     {
