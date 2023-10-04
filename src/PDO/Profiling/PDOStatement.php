@@ -24,7 +24,11 @@ class PDOStatement extends \PDOStatement
     /** The pine3ree\PDO instance that created this statement */
     private PDO $pdo;
 
-    /** Params accumulator */
+    /**
+     * Params accumulator
+     *
+     * @var array|mixed[]|array<string|int, mixed>
+     */
     private array $params = [];
 
     private function __construct(PDO $pdo)
@@ -32,8 +36,7 @@ class PDOStatement extends \PDOStatement
         $this->pdo = $pdo;
     }
 
-    /** {@inheritDoc} */
-    public function bindValue($param, $value, $type = null): bool
+    public function bindValue(string|int $param, $value, int $type = \PDO::PARAM_STR): bool
     {
         $result = parent::bindValue($param, $value, $type);
         if ($result) {
@@ -43,12 +46,11 @@ class PDOStatement extends \PDOStatement
         return $result;
     }
 
-    /** {@inheritDoc} */
     public function bindParam(
-        $param,
+        string|int $param,
         &$var,
-        $type = PDO::PARAM_STR,
-        $maxLength = null,
+        int $type = PDO::PARAM_STR,
+        int $maxLength = 0,
         $driverOptions = null
     ): bool {
         $result = parent::bindParam($param, $var, $type, $maxLength, $driverOptions);
@@ -59,19 +61,24 @@ class PDOStatement extends \PDOStatement
         return $result;
     }
 
-    /** {@inheritDoc} */
-    public function execute($params = null): bool
+    /**
+     * {@inheritDoc}
+     *
+     * @param array|mixed[]|array<int|string, mixed>|null $params
+     */
+    public function execute(?array $params = null): bool
     {
         $t0 = microtime(true);
-
         $result = parent::execute($params);
+        $t1 = microtime(true);
 
         $this->pdo->log(
             $this->queryString,
-            microtime(true) - $t0,
+            $t1 - $t0,
             $params ?? $this->params
         );
 
+        // Clear registered bound values/params after execution
         $this->params = [];
 
         return $result;
