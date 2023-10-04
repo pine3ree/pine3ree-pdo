@@ -48,7 +48,7 @@
         "fix-cs": "@phpcbf",
         "cs-check": "@phpcs",
         "cs-fix": "@phpcbf",
-        "phpstan": "phpstan analyze -c phpstan.neon",
+        "phpstan": "phpstan analyze -l max -c phpstan.neon ./src",
         "stan": "@phpstan",
         "static-analysis": [
             "@phpstan"
