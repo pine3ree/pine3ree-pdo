@@ -1,7 +1,5 @@
 # p3-PDO
 
-[![Build Status](https://travis-ci.org/pine3ree/p3-pdo.svg?branch=master)](https://travis-ci.org/pine3ree/p3-pdo)
-
 *A lazy-loading PDO drop-in replacement!*
 
 p3-PDO extends PHP ext-PDO in order to provide on demand connection, connection
@@ -22,6 +20,11 @@ You can install this library using Composer:
 ```bash
 $ composer require pine3ree/p3-pdo
 ```
+
+## Upgrade
+
+When upgrading from versions `<= 1.1.x` please refer to the provided changelog
+for how to overcome a few necessary BC changes.
 
 ## Documentation
 
