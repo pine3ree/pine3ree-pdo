@@ -130,7 +130,7 @@ final class PDO extends \PDO
     /**
      * {@inheritDoc}
      *
-     * @param array|mixed[] $fetchModeArgs The remainder of the arguments
+     * @param mixed $fetchModeArgs The remainder of the arguments
      * @see https://www.php.net/manual/en/pdo.query.php
      */
     public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
