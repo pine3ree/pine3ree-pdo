@@ -39,7 +39,7 @@ final class PDOTest extends AbstractPDOTest
     public function test_method_prepare_returnsProfilingPdoStatement()
     {
         $pdo = $this->createPDO();
-        $result = $pdo->prepare("SELECT * FROM `user` WHERE `id` = :id");
+        $result = $pdo->prepare("SELECT * FROM user WHERE id = :id");
 
         self::assertInstanceOf(PDOStatement::class, $result);
     }
@@ -72,9 +72,9 @@ final class PDOTest extends AbstractPDOTest
     {
         $pdo = $this->createPDO(0, true);
 
-        $sql1 = "SELECT * FROM `user` WHERE `id` = :id";
-        $sql2 = "SELECT `username` FROM `user` WHERE `id` = :id";
-        $sql3 = "SELECT `email` FROM `user` WHERE `id` = :id";
+        $sql1 = "SELECT * FROM user WHERE id = :id";
+        $sql2 = "SELECT username FROM user WHERE id = :id";
+        $sql3 = "SELECT email FROM user WHERE id = :id";
 
         $pdo->execute($sql1, [':id' => 1]); // 0
         $pdo->execute($sql1, [':id' => 2]); // 1
