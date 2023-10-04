@@ -96,7 +96,7 @@ final class PDO extends \PDO
         return $this->pdo->inTransaction();
     }
 
-    public function lastInsertId($name = null): string
+    public function lastInsertId($name = null)
     {
         return $this->pdo->lastInsertId($name);
     }

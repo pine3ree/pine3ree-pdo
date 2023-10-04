@@ -159,7 +159,7 @@ class PDO extends \PDO
         return false;
     }
 
-    public function lastInsertId($name = null): string
+    public function lastInsertId($name = null)
     {
         if (isset($this->pdo)) {
             return $this->pdo->lastInsertId($name);
