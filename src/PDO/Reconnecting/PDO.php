@@ -63,7 +63,7 @@ final class PDO extends P3PDO
      * Set the connection time-to-live in seconds
      *
      * Can be used only befor first successful database connection
-     * 
+     *
      * @param int $ttl The connection expiry time - ttl in seconds
      *
      * @throws InvalidArgumentException
