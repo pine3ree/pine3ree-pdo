@@ -1,0 +1,10 @@
+parameters:
+    level: max
+    paths:
+        - src
+    fileExtensions:
+        - php
+    checkGenericClassInNonGenericObjectType: false
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        - '#PDO::\_\_construct\(\) does not call parent constructor from PDO#'
