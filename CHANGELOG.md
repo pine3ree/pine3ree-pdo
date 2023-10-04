@@ -3,7 +3,7 @@
 Changes are documented in reverse chronological order by release.
 
 
-## 2.0.x
+## 2.0.3 - 2023-10-04
 
 ### Added
 
