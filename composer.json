@@ -8,8 +8,7 @@
         "pdo",
         "php",
         "database",
-        "pine3ree",
-        "p3"
+        "pine3ree"
     ],
     "homepage": "https://github.com/pine3ree/p3-pdo",
     "support": {
@@ -33,7 +32,7 @@
     },
     "autoload": {
         "psr-4": {
-            "P3\\": "src/"
+            "pine3ree\\": "src/"
         }
     },
     "scripts": {
