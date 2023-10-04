@@ -82,14 +82,10 @@ final class PDO extends P3PDO
 
         $this->pdo = parent::pdo();
 
-        if (isset($this->pdo)) {
-            $this->lastConnectedAt = microtime(true);
-            $this->connectionCount += 1;
+        $this->lastConnectedAt = microtime(true);
+        $this->connectionCount += 1;
 
-            return $this->pdo;
-        }
-
-        throw new RuntimeException("Unable to create a PDO instance!");
+        return $this->pdo;
     }
 
     /**
