@@ -12,9 +12,12 @@ namespace pine3ree\PDO\Reconnecting;
 
 use InvalidArgumentException;
 use pine3ree\PDO as P3PDO;
-use RuntimeException;
+use Exception;
 
+use function gettype;
+use function is_int;
 use function microtime;
+use function sprintf;
 
 /**
  * {@inheritDoc}
@@ -27,10 +30,10 @@ final class PDO extends P3PDO
     /** The reconnection interval (titme-to-live) */
     private int $ttl;
 
-    /** @var The last re-connection timestamp */
-    private int $lastConnectedAt = 0;
+    /** The last re-connection timestamp */
+    private float $lastConnectedAt = 0;
 
-    /** @var The number of connections so far */
+    /** The number of connections so far */
     private int $connectionCount = 0;
 
     /** @var int The default ttl value if not given via constructor */
@@ -42,6 +45,7 @@ final class PDO extends P3PDO
      * {@inheritDoc}
      *
      * @param int $ttl The connection expiry time in seconds (must be positive)
+     * @param array|mixed[]|array<int|string, mixed>|null $options Driver-specific connection options.
      */
     public function __construct(
         string $dsn,
@@ -66,6 +70,14 @@ final class PDO extends P3PDO
     }
 
     /**
+     * Return the connection expiry time in seconds
+     */
+    public function getTTL(): int
+    {
+        return $this->ttl;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * Establish or re-establish a pdo-database connection and return it
@@ -84,46 +96,78 @@ final class PDO extends P3PDO
             $this->pdo = null;
         }
 
-        $this->pdo = parent::pdo();
+        try {
+            $this->pdo = parent::pdo();
 
-        if (isset($this->pdo)) {
             $this->lastConnectedAt = microtime(true);
             $this->connectionCount += 1;
-            return $this->pdo;
-        }
 
-        throw new RuntimeException(
-            "Unable to estabilish a PDO database connection!"
-        );
+            return $this->pdo;
+            // v-spacer
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
 
     /**
      * {@inheritDoc}
      *
      * Return the ttl property value when for the attribute `ttl`
+     *
+     * @throws InvalidArgumentException
      */
-    public function getAttribute($attribute)
+    public function getAttribute(int|string $attribute)
     {
         if ($attribute === self::ATTR_CONNECTION_TTL) {
             return $this->ttl;
         }
 
-        return parent::getAttribute($attribute);
+        if (is_int($attribute)) {
+            return parent::getAttribute($attribute);
+        }
+
+        $this->throwExceptionOnInvalidAttributeType($attribute);
     }
 
     /**
      * {@inheritDoc}
      *
-     * Intercept custom 'ttl' attribute and call internal methof setTTL
+     * Intercept custom 'ttl' attribute and call internal method setTTL
      */
     public function setAttribute(int|string $attribute, $value): bool
     {
         if ($attribute === self::ATTR_CONNECTION_TTL) {
+            if (!is_int($value)) {
+                throw new InvalidArgumentException(sprintf(
+                    "Invalid TTL type: `%s`! MUST be a an integer.",
+                    gettype($value)
+                ));
+            }
             $this->setTTL($value);
             return true;
         }
 
-        return parent::setAttribute($attribute, $value);
+        if (is_int($attribute)) {
+            return parent::setAttribute($attribute, $value);
+        }
+
+        $this->throwExceptionOnInvalidAttributeType($attribute);
+
+        return false;
+    }
+
+    /**
+     * @param int|string $attribute The attribute name
+     * @throws InvalidArgumentException
+     */
+    private function throwExceptionOnInvalidAttributeType(int|string $attribute): void
+    {
+        throw new InvalidArgumentException(sprintf(
+            "Invalid PDO attribute type: `%s`, MUST be a standard PDO int attribute"
+            . " constant or the string '%s'",
+            gettype($attribute),
+            self::ATTR_CONNECTION_TTL
+        ));
     }
 
     /**
