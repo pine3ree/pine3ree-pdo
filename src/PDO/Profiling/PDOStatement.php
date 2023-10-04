@@ -36,26 +36,26 @@ class PDOStatement extends \PDOStatement
         $this->pdo = $pdo;
     }
 
-    public function bindValue(string|int $param, $value, int $type = \PDO::PARAM_STR): bool
-    {
-        $result = parent::bindValue($param, $value, $type);
+    public function bindParam(
+        string|int $param,
+        mixed &$var,
+        int $type = PDO::PARAM_STR,
+        int $maxLength = 0,
+        mixed $driverOptions = null
+    ): bool {
+        $result = parent::bindParam($param, $var, $type, $maxLength, $driverOptions);
         if ($result) {
-            $this->params[$param] = $value;
+            $this->params[$param] = $var;
         }
 
         return $result;
     }
 
-    public function bindParam(
-        string|int $param,
-        &$var,
-        int $type = PDO::PARAM_STR,
-        int $maxLength = 0,
-        $driverOptions = null
-    ): bool {
-        $result = parent::bindParam($param, $var, $type, $maxLength, $driverOptions);
+    public function bindValue(string|int $param, mixed $value, int $type = \PDO::PARAM_STR): bool
+    {
+        $result = parent::bindValue($param, $value, $type);
         if ($result) {
-            $this->params[$param] = $var;
+            $this->params[$param] = $value;
         }
 
         return $result;
