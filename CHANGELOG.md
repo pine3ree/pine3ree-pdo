@@ -3,6 +3,17 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 1.1.2 - 2023-10-04
+
+### Fixed
+
+- Fixed invalid constructor signature in code example.
+
+### Added
+
+- References to newer versions
+
+
 ## 1.1.1 - 2021-02-25
 
 ### Added
