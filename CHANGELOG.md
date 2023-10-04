@@ -6,7 +6,23 @@ Changes are documented in reverse chronological order by release.
 
 ### Deprecated
 
-- Renamed the old namespace `P3\` to `pine3ree\`
+- Renamed the old namespace `P3\` to `pine3ree\` and added temporary migration
+  file with old class names as aliases of the corresponding new ones.
+
+### Changed
+
+- Possible BC break: the `int` return type was removed from `PDO::exec()` as, 
+  per pdo-docs, it may also return `false`
+
+- Possible BC break: the string return type declaration was removed from
+  PDO::lastInsertId() as, per pdo-docs it may also return `false`.
+
+- BC break: lastInsertId() now returns `false` if not connected instead of the
+  empty string. When migrating from previous versions we suggest to simply
+  type-cast to string the result.
+
+- Possible BC break: the string return type declaration was removed from
+  `PDO::quote()` as, per pdo-docs, it may also return false
 
 
 ## 1.1.2 - 2023-10-04
