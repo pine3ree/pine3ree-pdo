@@ -8,7 +8,7 @@
  * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
-namespace P3;
+namespace pine3ree;
 
 use function explode;
 use function func_get_args;
