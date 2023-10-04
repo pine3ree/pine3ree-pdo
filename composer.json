@@ -32,6 +32,9 @@
         "squizlabs/php_codesniffer": "^3.5"
     },
     "autoload": {
+        "files": [
+            "src/migrate.php"
+        ],
         "psr-4": {
             "pine3ree\\": "src/"
         }
