@@ -10,15 +10,16 @@
 
 namespace pine3ree\PDOTest\Profiling;
 
-use pine3ree\PDO\Profiling\PDO;
-use pine3ree\PDO\Profiling\PDOStatement;
-use PHPUnit\Framework\Error;
+use Error;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 use function date;
-use function is_file;
 use function in_array;
+use function is_file;
 use function rand;
+use function restore_error_handler;
+use function set_error_handler;
 use function sprintf;
 use function strtotime;
 use function time;
@@ -29,33 +30,42 @@ use const PHP_VERSION_ID;
 abstract class AbstractPDOTest extends TestCase
 {
     /** @var string */
-    protected $dbfile = "/tmp/pine3ree-pdo-sqlit-test.db";
+    protected $dbfile = "/tmp/pine3ree-pdo-sqlite-test.db";
 
     /** @var string */
-    protected $dsn = "sqlite:/tmp/pine3ree-pdo-sqlit-test.db";
+    protected $dsn = "sqlite:/tmp/pine3ree-pdo-sqlite-test.db";
+
+    protected const SQL_INSERT = <<<EOSQL
+        INSERT INTO user
+            (username, email, enabled, created_at)
+        VALUES
+            (:username, :email, :enabled, :created_at)
+        EOSQL;
+
+    protected const SQL_UPDATE = <<<EOSQL
+        UPDATE user
+            SET enabled    = :enabled,
+                updated_at = :updated_at
+        WHERE
+            id < :id
+        EOSQL;
 
     public function setUp(): void
     {
         $pdo = new \PDO($this->dsn);
-        $pdo->exec(<<<EOT
-CREATE TABLE `user` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `username` TEXT UNIQUE,
-    `email` TEXT UNIQUE,
-    `enabled` INTEGER DEFAULT '0',
-    `created_at` TEXT DEFAULT '0000-00-00 00:00:00',
-    `updated_at` TEXT DEFAULT '0000-00-00 00:00:00'
-);
-EOT
+        $pdo->exec(<<<EOSQL
+            CREATE TABLE user (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE,
+                email TEXT UNIQUE,
+                enabled INTEGER DEFAULT '0',
+                created_at TEXT DEFAULT '0000-00-00 00:00:00',
+                updated_at TEXT DEFAULT '0000-00-00 00:00:00'
+            );
+            EOSQL
         );
 
-        $stmt = $pdo->prepare(<<<EOT
-INSERT INTO `user`
-    (`username`, `email`, `enabled`, `created_at`)
-VALUES
-    (:username, :email, :enabled, :created_at)
-EOT
-        );
+        $stmt = $pdo->prepare(self::SQL_INSERT);
 
         for ($i = 1; $i <= 10; $i++) {
             $stmt->execute([
@@ -78,10 +88,7 @@ EOT
     {
         $pdo = $this->createPDO();
 
-        $stmt = $pdo->prepare(
-            "INSERT INTO `user` (`username`, `email`, `enabled`, `created_at`) "
-            . "VALUES (:username, :email, :enabled, :created_at)"
-        );
+        $stmt = $pdo->prepare(self::SQL_INSERT);
 
         self::assertInstanceOf(static::expectedStatementClass(), $stmt);
 
@@ -104,13 +111,13 @@ EOT
 
         // update 1 row
         $result = $pdo->exec(
-            "UPDATE `user` SET `username` = 'username-001' WHERE `id` = 1"
+            "UPDATE user SET username = 'username-001' WHERE id = 1"
         );
         self::assertSame(1, $result);
 
         // update 2 rows
         $result = $pdo->exec(
-            "UPDATE `user` SET `username` = `username` || '=' || `id` WHERE `id` IN (2, 3)"
+            "UPDATE user SET username = username || '=' || id WHERE id IN (2, 3)"
         );
         self::assertSame(2, $result);
     }
@@ -118,7 +125,7 @@ EOT
     public function test_method_query_usingSelectReturnRows()
     {
         $pdo = $this->createPDO();
-        $stmt = $pdo->query("SELECT * FROM `user`", null);
+        $stmt = $pdo->query("SELECT * FROM user", null);
 
         self::assertInstanceOf(static::expectedStatementClass(), $stmt);
 
@@ -137,14 +144,14 @@ EOT
         self::assertSame('username-001', $rows[0]['username']);
         self::assertSame('email-001@emample.com', $rows[0]['email']);
         self::assertTrue(in_array($rows[0]['enabled'], PHP_VERSION_ID < 80100 ? ['0', '1'] : [0, 1], true));
-        self::assertRegExp('/\d{4}\-\d{2}\-\d{2} [0-2][0-9]\:[0-5][0-9]\:[0-5][0-9]/', $rows[0]['created_at']);
+        self::assertMatchesRegularExpression('/\d{4}\-\d{2}\-\d{2} [0-2][0-9]\:[0-5][0-9]\:[0-5][0-9]/', $rows[0]['created_at']);
         self::assertSame('0000-00-00 00:00:00', $rows[0]['updated_at']);
     }
 
     public function test_new_method_execute_preparesAndExecutesStatement()
     {
         $pdo = $this->createPDO();
-        $stmt = $pdo->execute("SELECT * FROM `user` WHERE `id` = :id", [':id' => 9]);
+        $stmt = $pdo->execute("SELECT * FROM user WHERE id = :id", [':id' => 9]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         self::assertArrayHasKey('id', $row);
@@ -164,7 +171,7 @@ EOT
     {
         $pdo = $this->createPDO();
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
-        $result = $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
+        $result = $pdo->execute("SELECT * FROM user WHERE nonexistent = :nonexistent", [':nonexistent' => 42]);
 
         self::assertFalse($result);
     }
@@ -173,8 +180,18 @@ EOT
     {
         $pdo = $this->createPDO();
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
-        $this->expectException(Error\Warning::class);
-        $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
+        $this->expectException(Error::class);
+        set_error_handler(function(int $errno, string $errstr) {
+            throw new Error($errstr, $errno);
+        });
+        try {
+            $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
+            restore_error_handler();
+        } catch (Throwable $ex) {
+            restore_error_handler();
+            throw $ex;
+            $this->expectException(Error::class);
+        }
     }
 
     public function test_method_execute_throwsPDOExceptionForInvalidQueryWithErrorModeException()
@@ -182,7 +199,7 @@ EOT
         $pdo = $this->createPDO();
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->expectException(\PDOException::class);
-        $pdo->execute("SELECT * FROM `user` WHERE `nonexistent` = :nonexistent", [':nonexistent' => 42]);
+        $pdo->execute("SELECT * FROM user WHERE nonexistent = :nonexistent", [':nonexistent' => 42]);
     }
 
     // phpcs:enable
