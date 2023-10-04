@@ -40,12 +40,34 @@
         }
     },
     "scripts": {
-        "cs": "@phpcs",
-        "cbf": "@phpcbf",
-        "stan": "@phpstan",
         "phpcs": "phpcs",
         "phpcbf": "phpcbf",
-        "phpstan": "phpstan analyze -l max -c phpstan.neon ./src",
-        "test": "phpunit --colors=always"
+        "cs": "@phpcs",
+        "cbf": "@phpcbf",
+        "check-cs": "@phpcs",
+        "fix-cs": "@phpcbf",
+        "cs-check": "@phpcs",
+        "cs-fix": "@phpcbf",
+        "phpstan": "phpstan analyze -c phpstan.neon",
+        "stan": "@phpstan",
+        "static-analysis": [
+            "@phpstan"
+        ],
+        "phpunit": "phpunit --colors=always",
+        "test": "@phpunit",
+        "check": [
+            "@phpcs",
+            "@static-analysis",
+            "@test"
+        ],
+        "test-coverage": "@test-coverage-clover",
+        "test-coverage-clover": "phpunit --colors=always --coverage-clover clover.xml",
+        "test-coverage-html": "phpunit --colors=always --coverage-html coverage/html",
+        "test-coverage-xml": "phpunit --colors=always --coverage-xml coverage/xml",
+        "test-coverage-all": [
+            "@test-coverage-html",
+            "@test-coverage-xml",
+            "@test-coverage-clover"
+        ]
     }
 }
