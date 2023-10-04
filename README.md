@@ -1,4 +1,6 @@
-# p3-PDO
+# pine3ree-PDO (formerly p3-PDO) 
+
+[![Continuous Integration](https://github.com/pine3ree/p3-pdo/actions/workflows/continuos-integration.yml/badge.svg?branch=1.2.x)](https://github.com/pine3ree/p3-pdo/actions/workflows/continuos-integration.yml)
 
 *A lazy-loading PDO drop-in replacement!*
 
