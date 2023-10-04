@@ -31,7 +31,7 @@ abstract class AbstractPDOTest extends TestCase
     /** @var string */
     protected $dsn = "sqlite:/tmp/p3-pdo-sqlite-test.db";
 
-    const SQL_INSERT = <<<EOSQL
+    protected static $SQL_INSERT = <<<EOSQL
 INSERT INTO user
     (username, email, enabled, created_at)
 VALUES
@@ -39,7 +39,7 @@ VALUES
 EOSQL;
 
 
-    const SQL_UPDATE = <<<EOSQL
+    protected static $SQL_UPDATE = <<<EOSQL
 UPDATE user
     SET enabled    = :enabled,
         updated_at = :updated_at
@@ -53,7 +53,7 @@ EOSQL;
 
         $this->dbfile = "/tmp/{$dbfilename}.db";
         $this->dsn    = "sqlite:{$this->dbfile}";
-        
+
         $pdo = new \PDO($this->dsn);
         $pdo->exec(<<<EOT
 CREATE TABLE user (
@@ -67,7 +67,7 @@ CREATE TABLE user (
 EOT
         );
 
-        $stmt = $pdo->prepare(self::SQL_INSERT);
+        $stmt = $pdo->prepare(self::$SQL_INSERT);
 
         for ($i = 1; $i <= 10; $i++) {
             $stmt->execute([
@@ -90,7 +90,7 @@ EOT
     {
         $pdo = $this->createPDO();
 
-        $stmt = $pdo->prepare(self::SQL_INSERT);
+        $stmt = $pdo->prepare(self::$SQL_INSERT);
 
         self::assertInstanceOf(static::expectedStatementClass(), $stmt);
 

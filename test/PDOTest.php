@@ -94,11 +94,11 @@ final class PDOTest extends AbstractPDOTest
 
         $phpPdo = $this->getDecoratedPDO($pdo);
 
-        $pdo->exec(self::SQL_INSERT);
+        $pdo->exec(self::$SQL_INSERT);
 
         $time = time();
 
-        $stmt = $pdo->prepare(self::SQL_INSERT);
+        $stmt = $pdo->prepare(self::$SQL_INSERT);
 
         $stmt->execute([
             ':username'   => "username-{$time}",
@@ -174,7 +174,7 @@ final class PDOTest extends AbstractPDOTest
         self::assertTrue($pdo->inTransaction());
         self::assertTrue($phpPdo->inTransaction());
 
-        $stmt = $pdo->prepare(self::SQL_UPDATE);
+        $stmt = $pdo->prepare(self::$SQL_UPDATE);
 
         $result = $stmt->execute([
             'enabled'    => mt_rand(0, 1),
@@ -196,7 +196,7 @@ final class PDOTest extends AbstractPDOTest
         self::assertTrue($pdo->inTransaction());
         self::assertTrue($phpPdo->inTransaction());
 
-        $stmt = $pdo->prepare(self::SQL_UPDATE);
+        $stmt = $pdo->prepare(self::$SQL_UPDATE);
 
         $result = $stmt->execute([
             'enabled'    => mt_rand(0, 1),
