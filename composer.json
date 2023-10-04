@@ -37,7 +37,6 @@
     },
     "autoload": {
         "files": [
-            "src/migrate.php"
         ],
         "psr-4": {
             "pine3ree\\": "src/"
