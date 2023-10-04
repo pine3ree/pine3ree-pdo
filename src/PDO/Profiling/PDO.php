@@ -115,7 +115,7 @@ final class PDO extends \PDO
         return $this->profile(__FUNCTION__, $statement, func_get_args());
     }
 
-    public function quote($string, $paramtype = null): string
+    public function quote($string, $paramtype = null)
     {
         return $this->pdo->quote($string, $paramtype);
     }
