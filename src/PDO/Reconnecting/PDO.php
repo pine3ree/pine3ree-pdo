@@ -13,6 +13,7 @@ namespace pine3ree\PDO\Reconnecting;
 use InvalidArgumentException;
 use pine3ree\PDO as P3PDO;
 use Exception;
+use LogicException;
 
 use function gettype;
 use function is_int;
@@ -58,11 +59,27 @@ final class PDO extends P3PDO
         $this->setTTL($ttl);
     }
 
-    protected function setTTL(int $ttl): void
+    /**
+     * Set the connection time-to-live in seconds
+     *
+     * Can be used only befor first successful database connection
+     * 
+     * @param int $ttl The connection expiry time - ttl in seconds
+     *
+     * @throws InvalidArgumentException
+     * @throws LogicException
+     */
+    public function setTTL(int $ttl): void
     {
         if ($ttl < 1) {
             throw new InvalidArgumentException(
                 "The expiry time TTL argument must be a positive integer: `{$ttl}` was provided!"
+            );
+        }
+
+        if (isset($this->pdo)) {
+            throw new LogicException(
+                "Cannot set the TTL value after a database connection has been established"
             );
         }
 
