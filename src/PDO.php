@@ -165,7 +165,7 @@ class PDO extends \PDO
             return $this->pdo->lastInsertId($name);
         }
 
-        return '';
+        return false;
     }
 
     public function prepare($statement, $driver_options = [])
