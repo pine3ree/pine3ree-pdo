@@ -12,10 +12,12 @@ namespace pine3ree\PDOTest\Profiling;
 
 use PHPUnit\Framework\TestCase;
 
+use function bin2hex;
 use function date;
 use function in_array;
 use function is_file;
-use function rand;
+use function mt_rand;
+use function random_bytes;
 use function sprintf;
 use function strtotime;
 use function time;
@@ -24,10 +26,10 @@ use function unlink;
 abstract class AbstractPDOTest extends TestCase
 {
     /** @var string */
-    protected $dbfile = "/tmp/p3-pdo-sqlit-test.db";
+    protected $dbfile = "/tmp/p3-pdo-sqlite-test.db";
 
     /** @var string */
-    protected $dsn = "sqlite:/tmp/p3-pdo-sqlit-test.db";
+    protected $dsn = "sqlite:/tmp/p3-pdo-sqlite-test.db";
 
     const SQL_INSERT = <<<EOSQL
 INSERT INTO user
@@ -47,6 +49,11 @@ EOSQL;
 
     public function setUp()
     {
+        $dbfilename = bin2hex(random_bytes(32));
+
+        $this->dbfile = "/tmp/{$dbfilename}.db";
+        $this->dsn    = "sqlite:{$this->dbfile}";
+        
         $pdo = new \PDO($this->dsn);
         $pdo->exec(<<<EOT
 CREATE TABLE user (
@@ -67,7 +74,7 @@ EOT
                 ':username'   => sprintf("username-%03d", $i),
                 ':email'      => sprintf("email-%03d@emample.com", $i),
                 ':enabled'    => mt_rand(0, 1),
-                ':created_at' => date('Y-m-d H:i:s', rand(strtotime('-60 days'), time())),
+                ':created_at' => date('Y-m-d H:i:s', mt_rand(strtotime('-60 days'), time())),
             ]);
         }
     }
