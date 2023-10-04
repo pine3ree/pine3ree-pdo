@@ -121,7 +121,7 @@ class PDO extends \PDO
         return ['00000', null, null];
     }
 
-    public function exec($statement): int
+    public function exec($statement)
     {
         return $this->pdo()->exec($statement);
     }

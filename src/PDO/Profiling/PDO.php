@@ -76,7 +76,7 @@ final class PDO extends \PDO
         return $this->pdo->errorInfo();
     }
 
-    public function exec($statement): int
+    public function exec($statement)
     {
         return $this->profile(__FUNCTION__, $statement, [$statement]);
     }
