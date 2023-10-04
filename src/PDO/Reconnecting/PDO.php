@@ -27,7 +27,7 @@ final class PDO extends P3PDO
     /** @var int */
     private $ttl;
 
-    /** @var int */
+    /** @var float */
     private $lastConnectedAt = 0;
 
     /** @var int */
