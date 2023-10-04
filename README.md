@@ -10,7 +10,14 @@ expiration with auto-reconnect and query logging/profiling.
 
 ## Installation
 
-You can install this library using Composer (with "minimum-stability": "dev"):
+This version requires php-7.x or in composer terms: `^7.0`.
+For php >= 7.4 please refer to the [new 2.x and 3.x versions](https://github.om/pine3ree/pine3ree-pdo).
+
+Starting from version 2.x the classes use the full vendor namespace `pine3ree\`.
+Version 2.x includes a composer included `migration` file that add aliases for
+the older classes that used the now abandoned `P3\` namespace.
+
+You can install this library using Composer:
 
 ```bash
 $ composer require pine3ree/p3-pdo
@@ -76,7 +83,6 @@ $pdo = new P3\PDO\Reconnecting\PDO(
     $password = '',
     $options = [],
     $ttl = 6, // drops the current connection after 6 seconds and establish a new one on demand
-    $log = false
 );
 ```
 
