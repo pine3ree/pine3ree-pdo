@@ -14,6 +14,7 @@ use pine3ree\PDO as P3PDO;
 use pine3ree\PDO\Profiling\PDOStatement;
 use PDOException;
 
+use function is_array;
 use function gettype;
 use function is_string;
 use function is_subclass_of;
@@ -28,8 +29,14 @@ final class PDO extends \PDO
 {
     private \PDO $pdo;
 
+    /**
+     * @var array<int, array{sql: string, iter: int, time: float, params: mixed[]|null}>
+     */
     private array $log_statements = [];
 
+    /**
+     * @var array<string, array{sql: string, iter: int, time: float}>
+     */
     private array $log_reruns = [];
 
     private int $log_count = 0;
@@ -52,34 +59,40 @@ final class PDO extends \PDO
         );
     }
 
-    /** {@inheritDoc} */
     public function beginTransaction(): bool
     {
         return $this->pdo->beginTransaction();
     }
 
-    /** {@inheritDoc} */
     public function commit(): bool
     {
         return $this->pdo->commit();
     }
 
-    /** {@inheritDoc} */
-    public function errorCode(): string
+    public function errorCode(): ?string
     {
         return $this->pdo->errorCode();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @return array|mixed[]|array{0: string, 1: string|null, 2: string|null}
+     */
     public function errorInfo(): array
     {
         return $this->pdo->errorInfo();
     }
 
-    /** {@inheritDoc} */
-    public function exec(string $statement): int
+    public function exec(string $statement): int|false
     {
-        return $this->profile(__FUNCTION__, $statement, [$statement]);
+        $t0 = microtime(true);
+        $result = $this->pdo->exec($statement);
+        $t1 = microtime(true);
+
+        $this->log($statement, $t1 - $t0);
+
+        return $result;
     }
 
     /**
@@ -92,40 +105,49 @@ final class PDO extends \PDO
         return $this->pdo->getAttribute($attribute);
     }
 
-    /** {@inheritDoc} */
     public function inTransaction(): bool
     {
         return $this->pdo->inTransaction();
     }
 
-    /** {@inheritDoc} */
     public function lastInsertId(?string $name = null): string|false
     {
         return $this->pdo->lastInsertId($name);
     }
 
-    /** {@inheritDoc} */
-    public function prepare($statement, $options = []): PDOStatement|false
+    /**
+     * {@inheritDoc}
+     *
+     * @param array|mixed[]|array<int|string, mixed> $options
+     */
+    public function prepare(string $query, array $options = []): PDOStatement|false
     {
-        return $this->pdo->prepare($statement, $options);
+        return $this->pdo->prepare($query, $options);
     }
 
     /**
      * {@inheritDoc}
+     *
      * @link https://www.php.net/manual/en/pdo.query.php
+     *
+     * @param array|mixed[] $fetchModeArgs The remainder of the arguments
      */
-    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs): PDOStatement|false
+    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs): \PDOStatement|false
     {
-        return $this->pdo->query($query, $fetchMode, ...$fetchModeArgs);
+        $t0 = microtime(true);
+        $result = $this->pdo->query($query, $fetchMode, ...$fetchModeArgs);
+        $t1 = microtime(true);
+
+        $this->log($query, $t1 - $t0);
+
+        return $result;
     }
 
-    /** {@inheritDoc} */
-    public function quote(string $string, int $paramtype = \PDO::PARAM_STR): string|false
+    public function quote(string $string, int $type = \PDO::PARAM_STR): string|false
     {
-        return $this->pdo->quote($string, $paramtype);
+        return $this->pdo->quote($string, $type);
     }
 
-    /** {@inheritDoc} */
     public function rollBack(): bool
     {
         return $this->pdo->rollBack();
@@ -143,7 +165,7 @@ final class PDO extends \PDO
     public function setAttribute(int $attribute, $value): bool
     {
         if ($attribute === \PDO::ATTR_STATEMENT_CLASS) {
-            $stmt_class = $value[0] ?? null;
+            $stmt_class = is_array($value) ? ($value[0] ?? null) : null;
             if (!is_string($stmt_class)
                 || !(
                     $stmt_class === PDOStatement::class
@@ -163,23 +185,6 @@ final class PDO extends \PDO
     }
 
     /**
-     * Profile the call to the provided method with given arguments
-     *
-     * @param string $method
-     * @param string $sql
-     * @param array $args
-     * @return mixed
-     */
-    private function profile(string $method, string $sql, array $args)
-    {
-        $t0 = microtime(true);
-        $result = $this->pdo->{$method}(...$args);
-        $this->log($sql, microtime(true) - $t0);
-
-        return $result;
-    }
-
-    /**
      * Has the database connection already been established?
      *
      * @return bool
@@ -190,16 +195,15 @@ final class PDO extends \PDO
             return $this->pdo->isConnected();
         }
 
-        return isset($this->pdo);
+        return $this->pdo instanceof \PDO;
     }
 
     /**
      * Prepare and execute a sql-statement
      *
-     * @param string $statement The SQL expression possibly including parameter markers
-     * @param array $params Substitution parameters for the markers, if any
-     * @param array $options  Additional driver options, if any
-     * @return PDOStatement|false
+     * @param string $query The SQL expression possibly including parameter markers
+     * @param array|mixed[]|array<int|string, mixed>|null $params Substitution parameters for the markers, if any
+     * @param array|string[]|array{0: string, 1: string|null, 2: string|null} $options Additional driver options, if any
      *
      * @see \PDO::prepare()
      * @see \PDOStatement::execute()
@@ -208,11 +212,11 @@ final class PDO extends \PDO
      * @link https://www.php.net/manual/en/pdostatement.execute.php
      */
     public function execute(
-        string $statement,
-        array $params = [],
-        array $options = []
-    ) {
-        $stmt = $this->prepare($statement, $options);
+        string $query,
+        ?array $params = null,
+        ?array $options = null
+    ): PDOStatement|false {
+        $stmt = $this->prepare($query, $options ?? []);
         if (false  === $stmt || false === $stmt->execute($params)) {
             return false;
         }
@@ -225,7 +229,7 @@ final class PDO extends \PDO
      *
      * @param string $sql The sql statement
      * @param float $microtime The execution time in seconds.microseconds
-     * @param array|null $params The parameters for the sql markes
+     * @param array|mixed[]|array<int|string, mixed>|null $params The parameters for the sql markes
      * @internal
      */
     public function log(
@@ -259,6 +263,8 @@ final class PDO extends \PDO
 
     /**
      * Return the combined log/profiling information
+     *
+     * @return array|mixed[]|array<string, array|float|int>
      */
     public function getLog(): array
     {
