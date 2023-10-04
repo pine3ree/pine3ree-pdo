@@ -3,6 +3,13 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 2.0.x
+
+### Added
+
+- Added test cases for various signatures of PDO::query()
+
+
 ## 2.0.2 - 2023-10-02
 
 ### Changed
