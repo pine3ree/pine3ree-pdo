@@ -152,8 +152,6 @@ final class PDO extends P3PDO
         }
 
         $this->throwExceptionOnInvalidAttributeType($attribute);
-
-        return false;
     }
 
     /**
