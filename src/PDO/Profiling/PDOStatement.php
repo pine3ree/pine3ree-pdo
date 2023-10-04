@@ -8,21 +8,21 @@
  * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
-namespace P3\PDO\Profiling;
+namespace pine3ree\PDO\Profiling;
 
-use P3\PDO\Profiling\PDO;
+use pine3ree\PDO\Profiling\PDO;
 
 use function microtime;
 
 /**
  * {@inheritDoc}
  *
- * Log and profile query execution info via the calling P3\PDO instance
+ * Log and profile query execution info via the calling pine3ree\PDO instance
  */
 class PDOStatement extends \PDOStatement
 {
     /**
-     * @var PDO The P3\PDO instance that created this statement
+     * @var PDO The pine3ree\PDO instance that created this statement
      */
     private $pdo;
 

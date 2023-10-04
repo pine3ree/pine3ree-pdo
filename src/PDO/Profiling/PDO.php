@@ -8,10 +8,10 @@
  * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
-namespace P3\PDO\Profiling;
+namespace pine3ree\PDO\Profiling;
 
-use P3\PDO as LazyPDO;
-use P3\PDO\Profiling\PDOStatement;
+use pine3ree\PDO as LazyPDO;
+use pine3ree\PDO\Profiling\PDOStatement;
 use PDOException;
 
 use function func_get_args;

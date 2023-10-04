@@ -8,10 +8,10 @@
  * @license   https://github.com/pine3ree/p3-pdo/blob/master/LICENSE.md New BSD License
  */
 
-namespace P3\PDO\Reconnecting;
+namespace pine3ree\PDO\Reconnecting;
 
 use InvalidArgumentException;
-use P3\PDO as P3PDO;
+use pine3ree\PDO as P3PDO;
 use RuntimeException;
 
 use function microtime;
