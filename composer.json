@@ -18,7 +18,10 @@
         "source": "https://github.com/pine3ree/p3-pdo"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "ocramius/package-versions": true
+        }
     },
     "require": {
         "php": "^7.0",
