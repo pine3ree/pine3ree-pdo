@@ -13,6 +13,8 @@ namespace pine3ree\PDOTest\Reconnecting;
 use InvalidArgumentException;
 use pine3ree\PDO\Reconnecting\PDO;
 use pine3ree\PDOTest\Profiling\AbstractPDOTest;
+use PDOException;
+use ReflectionClass;
 
 final class PDOTest extends AbstractPDOTest
 {
@@ -93,5 +95,44 @@ final class PDOTest extends AbstractPDOTest
         self::assertEquals(1, $pdo->getConnectionCount());
 
         $pdo->commit();
+    }
+
+    public function testThatPdoThrowsPDOExceptionIfCannotConnectToDb()
+    {
+        $ttl = 42;
+        $fetchMode = \PDO::FETCH_ASSOC;
+        $pdo = new PDO('mysql://db=non-existent', '', '', [], $ttl);
+
+        $rc = new ReflectionClass(PDO::class);
+        $rm = $rc->getMethod('pdo');
+        $rm->setAccessible(true);
+
+        $this->expectException(PDOException::class);
+        $rm->invoke($pdo);
+    }
+
+    public function testThatGetAttributeWithCustomStringKeyRetunsValidTtlValue()
+    {
+        $ttl = 42;
+        $pdo = $this->createReconnectingPDO($ttl);
+
+        self::assertSame($ttl, $pdo->getAttribute('ttl'));
+    }
+
+    public function testThatGetAttributeWithIntKeyFallsBackToStandardBehavior()
+    {
+        $ttl = 1;
+        $fetchMode = \PDO::FETCH_ASSOC;
+        $pdo = $this->createReconnectingPDO($ttl);
+        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode);
+
+        self::assertSame($fetchMode, $pdo->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE));
+
+        $rc = new ReflectionClass(PDO::class);
+        $rm = $rc->getMethod('pdo');
+        $rm->setAccessible(true);
+
+        $wrappedPdo = $rm->invoke($pdo);
+        self::assertSame($fetchMode, $wrappedPdo->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE));
     }
 }
