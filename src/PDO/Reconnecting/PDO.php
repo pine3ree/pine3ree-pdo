@@ -126,7 +126,12 @@ final class PDO extends P3PDO
             return parent::getAttribute($attribute);
         }
 
-        $this->throwExceptionOnInvalidAttributeType($attribute);
+        throw new InvalidArgumentException(sprintf(
+            "Invalid PDO attribute type: `%s`, MUST be a standard PDO int attribute"
+            . " constant or the string '%s'",
+            gettype($attribute),
+            self::ATTR_CONNECTION_TTL
+        ));
     }
 
     /**
@@ -151,15 +156,6 @@ final class PDO extends P3PDO
             return parent::setAttribute($attribute, $value);
         }
 
-        $this->throwExceptionOnInvalidAttributeType($attribute);
-    }
-
-    /**
-     * @param int|string $attribute The attribute name
-     * @throws InvalidArgumentException
-     */
-    private function throwExceptionOnInvalidAttributeType(int|string $attribute): void
-    {
         throw new InvalidArgumentException(sprintf(
             "Invalid PDO attribute type: `%s`, MUST be a standard PDO int attribute"
             . " constant or the string '%s'",
