@@ -12,8 +12,6 @@ namespace pine3ree;
 
 use function explode;
 
-use const PHP_VERSION_ID;
-
 /**
  * PDO is a drop-in replacement for the php-extension "ext-pdo".
  *
@@ -25,24 +23,38 @@ class PDO extends \PDO
     /** The wrapped php-PDO instance */
     protected ?\PDO $pdo = null;
 
-    protected ?string $dsn = null;
+    protected string $dsn;
 
     protected ?string $username = null;
 
     protected ?string $password = null;
 
+    /**
+     * Driver-specific connection options
+     *
+     * @var array|mixed[]|array<int|string, mixed>|null
+     */
     protected ?array $options = null;
 
+    /**
+     * PDO database connection attributes
+     *
+     * @var array|mixed[]|array<int|string, mixed>
+     */
     protected array $attributes = [];
 
     /**
      * Gather mandatory information later used to establish a database connection
      * on demand
      *
-     * @param string $dsn The Data Source Name, or DSN, contains the information required to connect to the database.
-     * @param string|null $username The user name for the DSN string. This parameter is optional for some PDO drivers.
-     * @param string|null $password The password for the DSN string. This parameter is optional for some PDO drivers.
-     * @param array|null $options A key=>value array of driver-specific connection options.
+     * @param string $dsn The Data Source Name, or DSN, contains the information
+     *      required to connect to the database.
+     * @param string|null $username The user name for the DSN string.
+     *      This parameter is optional for some PDO drivers.
+     * @param string|null $password The password for the DSN string.
+     *      This parameter is optional for some PDO drivers.
+     * @param array|mixed[]|array<int|string, mixed>|null $options A key=>value
+     *      array of driver-specific connection options.
      */
     public function __construct(
         string $dsn,
@@ -80,7 +92,7 @@ class PDO extends \PDO
             $this->options
         );
 
-        // apply preset attributes, if any
+        // Apply preset attributes, if any
         foreach ($this->attributes as $attribute => $value) {
             $this->pdo->setAttribute($attribute, $value);
         }
@@ -90,28 +102,23 @@ class PDO extends \PDO
 
     /**
      * Has the database connection already been established?
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {
         return isset($this->pdo);
     }
 
-    /** {@inheritDoc} */
     public function beginTransaction(): bool
     {
         return $this->pdo()->beginTransaction();
     }
 
-    /** {@inheritDoc} */
     public function commit(): bool
     {
         return $this->pdo()->commit();
     }
 
-    /** {@inheritDoc} */
-    public function errorCode(): string
+    public function errorCode(): ?string
     {
         if (isset($this->pdo)) {
             return $this->pdo->errorCode();
@@ -120,7 +127,11 @@ class PDO extends \PDO
         return '00000';
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @return array|mixed[]|array{0: string, 1: string|null, 2: string|null}
+     */
     public function errorInfo(): array
     {
         if (isset($this->pdo)) {
@@ -130,8 +141,7 @@ class PDO extends \PDO
         return ['00000', null, null];
     }
 
-    /** {@inheritDoc} */
-    public function exec(string $statement): int
+    public function exec(string $statement): int|false
     {
         return $this->pdo()->exec($statement);
     }
@@ -139,7 +149,7 @@ class PDO extends \PDO
     /**
      * {@inheritDoc}
      *
-     * If not connected to a database return the attribute value internally stored
+     * If not connected to a database return the attribute value stored internally
      */
     public function getAttribute(int $attribute)
     {
@@ -160,7 +170,6 @@ class PDO extends \PDO
         return $this->attributes[$attribute] ?? null;
     }
 
-    /** {@inheritDoc} */
     public function inTransaction(): bool
     {
         if (isset($this->pdo)) {
@@ -170,7 +179,6 @@ class PDO extends \PDO
         return false;
     }
 
-    /** {@inheritDoc} */
     public function lastInsertId(?string $name = null): string|false
     {
         if (isset($this->pdo)) {
@@ -180,7 +188,11 @@ class PDO extends \PDO
         return false;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @param array|mixed[]|array<int|string, mixed> $options
+     */
     public function prepare(string $query, array $options = []): \PDOStatement|false
     {
         return $this->pdo()->prepare($query, $options);
@@ -188,20 +200,21 @@ class PDO extends \PDO
 
     /**
      * {@inheritDoc}
+     *
      * @see https://www.php.net/manual/en/pdo.query.php
+     *
+     * @param array|mixed[] $fetchModeArgs The remainder of the arguments
      */
     public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs): \PDOStatement|false
     {
         return $this->pdo()->query($query, $fetchMode, ...$fetchModeArgs);
     }
 
-    /** {@inheritDoc} */
     public function quote(string $string, int $type = \PDO::PARAM_STR): string|false
     {
         return $this->pdo()->quote($string, $type);
     }
 
-    /** {@inheritDoc} */
     public function rollBack(): bool
     {
         return $this->pdo()->rollBack();
@@ -230,10 +243,10 @@ class PDO extends \PDO
     /**
      * Prepare and execute a sql-statement
      *
-     * @param string $statement The SQL expression possibly including parameter markers
-     * @param array $params Substitution parameters for the markers, if any
-     * @param array $options  Additional driver options, if any
-     * @return \PDOStatement|false
+     * @param string $query The SQL expression possibly including parameter markers
+     * @param array|mixed[]|array<int|string, mixed>|null $params Substitution parameters for the markers, if any
+     * @param array|string[]|array{0: string, 1: string|null, 2: string|null}|null $options
+     *      Additional driver options, if any
      *
      * @see \PDO::prepare()
      * @see \PDOStatement::execute()
@@ -242,11 +255,11 @@ class PDO extends \PDO
      * @link https://www.php.net/manual/en/pdostatement.execute.php
      */
     public function execute(
-        string $statement,
-        array $params = [],
-        array $options = []
-    ) {
-        $stmt = $this->prepare($statement, $options);
+        string $query,
+        ?array $params = null,
+        ?array $options = null
+    ): \PDOStatement|false {
+        $stmt = $this->prepare($query, $options ?? []);
         if (false  === $stmt || false === $stmt->execute($params)) {
             return false;
         }
