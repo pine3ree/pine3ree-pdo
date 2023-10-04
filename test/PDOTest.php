@@ -85,7 +85,25 @@ final class PDOTest extends AbstractPDOTest
     public function test_method_lastInsertId_returnsFalseIfNotConnected()
     {
         $pdo = $this->createPDO();
+
+        self::assertFalse($pdo->isConnected());
         self::assertSame(false, $pdo->lastInsertId());
+        self::assertFalse($pdo->isConnected());
+    }
+
+    public function test_method_lastInsertId_returnsZeroIfNotRecordWasInserted()
+    {
+        $pdo = $this->createPDO();
+
+        $stmt = $pdo->prepare(self::$SQL_UPDATE);
+
+        $stmt->execute([
+            'enabled'    => mt_rand(0, 1),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'id'         => 4,
+        ]);
+
+        self::assertSame('0', $pdo->lastInsertId());
     }
 
     public function test_method_lastInsertId_returnsSameValuesAsDecoratedPdo()
