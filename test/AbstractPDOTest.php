@@ -10,13 +10,11 @@
 
 namespace pine3ree\PDOTest\Profiling;
 
-use pine3ree\PDO\Profiling\PDO;
-use pine3ree\PDO\Profiling\PDOStatement;
 use PHPUnit\Framework\TestCase;
 
 use function date;
-use function is_file;
 use function in_array;
+use function is_file;
 use function rand;
 use function sprintf;
 use function strtotime;
@@ -30,6 +28,22 @@ abstract class AbstractPDOTest extends TestCase
 
     /** @var string */
     protected $dsn = "sqlite:/tmp/p3-pdo-sqlit-test.db";
+
+    const SQL_INSERT = <<<EOSQL
+INSERT INTO user
+    (username, email, enabled, created_at)
+VALUES
+    (:username, :email, :enabled, :created_at)
+EOSQL;
+
+
+    const SQL_UPDATE = <<<EOSQL
+UPDATE user
+    SET enabled    = :enabled,
+        updated_at = :updated_at
+WHERE
+    id < :id
+EOSQL;
 
     public function setUp()
     {
@@ -46,13 +60,7 @@ CREATE TABLE user (
 EOT
         );
 
-        $stmt = $pdo->prepare(<<<EOT
-INSERT INTO user
-    (username, email, enabled, created_at)
-VALUES
-    (:username, :email, :enabled, :created_at)
-EOT
-        );
+        $stmt = $pdo->prepare(self::SQL_INSERT);
 
         for ($i = 1; $i <= 10; $i++) {
             $stmt->execute([
@@ -75,10 +83,7 @@ EOT
     {
         $pdo = $this->createPDO();
 
-        $stmt = $pdo->prepare(
-            "INSERT INTO user (username, email, enabled, created_at) "
-            . "VALUES (:username, :email, :enabled, :created_at)"
-        );
+        $stmt = $pdo->prepare(self::SQL_INSERT);
 
         self::assertInstanceOf(static::expectedStatementClass(), $stmt);
 
