@@ -14,6 +14,7 @@ use pine3ree\PDO as LazyPDO;
 use pine3ree\PDO\Profiling\PDOStatement;
 use PDOException;
 
+use function is_array;
 use function func_get_args;
 use function gettype;
 use function is_string;
@@ -128,7 +129,7 @@ final class PDO extends \PDO
     public function setAttribute($attribute, $value): bool
     {
         if ($attribute === self::ATTR_STATEMENT_CLASS) {
-            $stmt_class = $value[0] ?? null;
+            $stmt_class = is_array($value) ? ($value[0] ?? null) : null;
             if (!is_string($stmt_class)
                 || !(
                     $stmt_class === PDOStatement::class
