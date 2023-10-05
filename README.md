@@ -1,6 +1,6 @@
 # pine3ree-PDO
 
-[![Continuous Integration](https://github.com/pine3ree/pine3ree-pdo/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/pine3ree/pine3ree-pdo/actions/workflows/continuous-integration.yml)
+[![Continuous Integration](https://github.com/pine3ree/pine3ree-pdo/actions/workflows/continuous-integration.yml/badge.svg?branch=3.0.x)](https://github.com/pine3ree/pine3ree-pdo/actions/workflows/continuous-integration.yml)
 
 *A lazy-loading PDO drop-in replacement!*
 
