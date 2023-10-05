@@ -3,6 +3,11 @@
 Changes are documented in reverse chronological order by release.
 
 
+## 2.0.4 - 2023-10-05
+
+Minor phpdoc fixes
+
+
 ## 2.0.3 - 2023-10-04
 
 ### Added
