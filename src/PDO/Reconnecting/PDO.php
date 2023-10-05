@@ -3,9 +3,9 @@
 /**
  * @package   pine3ree-pdo
  * @see       https://github.com/pine3ree/pine3ree-pdo for the canonical source repository
- * @copyright https://github.com/pine3ree/pine3ree-pdo/blob/master/COPYRIGHT.md
+ * @copyright https://github.com/pine3ree/pine3ree-pdo/blob/2.0.x/COPYRIGHT.md
  * @author    pine3ree https://github.com/pine3ree
- * @license   https://github.com/pine3ree/pine3ree-pdo/blob/master/LICENSE.md New BSD License
+ * @license   https://github.com/pine3ree/pine3ree-pdo/blob/2.0.x/LICENSE.md New BSD License
  */
 
 namespace pine3ree\PDO\Reconnecting;
