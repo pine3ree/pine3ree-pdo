@@ -191,8 +191,6 @@ final class PDO extends \PDO
 
     /**
      * Has the database connection already been established?
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {

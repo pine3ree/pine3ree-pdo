@@ -230,9 +230,6 @@ class PDO extends \PDO
      *
      * Store the attribute internally so that if not connected to a database it
      * may be used when the connection is established
-     *
-     * Add additional validation for the statement-class attribute if query-logging
-     * is enabled
      */
     public function setAttribute($attribute, $value): bool
     {
