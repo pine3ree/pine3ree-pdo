@@ -45,6 +45,7 @@ final class PDO extends \PDO
 
     /**
      * {@inheritDoc}
+     *
      * @param \PDO $pdo The decorated pdo instance
      */
     public function __construct(\PDO $pdo)
@@ -109,6 +110,7 @@ final class PDO extends \PDO
 
     /**
      * {@inheritDoc}
+     *
      * @link https://www.php.net/manual/en/pdo.query.php
      */
     public function query(string $statement, int $fetch_mode = null, $fetch_argument = null, $fetch_extra = null)

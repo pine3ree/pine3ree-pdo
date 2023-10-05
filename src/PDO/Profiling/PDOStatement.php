@@ -33,7 +33,6 @@ class PDOStatement extends \PDOStatement
         $this->pdo = $pdo;
     }
 
-    /** {@inheritDoc} */
     public function bindValue($parameter, $value, $data_type = null): bool
     {
         $result = parent::bindValue($parameter, $value, $data_type);
@@ -44,7 +43,6 @@ class PDOStatement extends \PDOStatement
         return $result;
     }
 
-    /** {@inheritDoc} */
     public function bindParam(
         $parameter,
         &$variable,
@@ -60,7 +58,6 @@ class PDOStatement extends \PDOStatement
         return $result;
     }
 
-    /** {@inheritDoc} */
     public function execute($input_parameters = null): bool
     {
         $t0 = microtime(true);

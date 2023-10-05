@@ -104,8 +104,6 @@ final class PDO extends P3PDO
 
     /**
      * Return the number of connection initiated so far
-     *
-     * @return int
      */
     public function getConnectionCount(): int
     {
