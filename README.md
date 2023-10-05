@@ -1,5 +1,7 @@
 # pine3ree-PDO
 
+[![Continuous Integration](https://github.com/pine3ree/pine3ree-pdo/actions/workflows/continuos-integration.yml/badge.svg?branch=2.0.x)](https://github.com/pine3ree/pine3ree-pdo/actions/workflows/continuos-integration.yml)
+
 *A lazy-loading PDO drop-in replacement!*
 
 pine3ree-PDO extends PHP ext-PDO in order to provide on demand connection, connection
