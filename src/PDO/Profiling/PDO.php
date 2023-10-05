@@ -118,7 +118,7 @@ final class PDO extends \PDO
     /**
      * {@inheritDoc}
      *
-     * @param array|mixed[]|array<int|string, mixed> $options
+     * @param array|mixed[]|array<int|string, mixed> $options Optional attribute values for the returned PDOStatement
      */
     public function prepare(string $query, array $options = []): PDOStatement|false
     {
@@ -201,7 +201,8 @@ final class PDO extends \PDO
      *
      * @param string $query The SQL expression possibly including parameter markers
      * @param array|mixed[]|array<int|string, mixed>|null $params Substitution parameters for the markers, if any
-     * @param array|string[]|array{0: string, 1: string|null, 2: string|null} $options Additional driver options, if any
+     * @param array|mixed[]|array<int|string, mixed>|null $options Optional attribute values
+     *      for the returned PDOStatement
      *
      * @see \PDO::prepare()
      * @see \PDOStatement::execute()
