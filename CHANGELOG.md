@@ -2,7 +2,7 @@
 
 Changes are documented in reverse chronological order by release.
 
-## 1.2.x
+## 1.2.0 - 2023-10-05
 
 ### Deprecated
 
@@ -15,7 +15,7 @@ Changes are documented in reverse chronological order by release.
   per pdo-docs, it may also return `false`
 
 - Possible BC break: the string return type declaration was removed from
-  PDO::lastInsertId() as, per pdo-docs it may also return `false`.
+  `PDO::lastInsertId()` as, per pdo-docs it may also return `false`.
 
 - BC break: lastInsertId() now returns `false` if not connected instead of the
   empty string. When migrating from previous versions we suggest to simply
