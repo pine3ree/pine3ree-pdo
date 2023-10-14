@@ -60,7 +60,7 @@ another pdo instance (either a standard ext-pdo instance or an instance of a cla
 extending it (such as the lazy-pdo in this package) in the constructor:
 ```php
 $pdo = new pine3ree\PDO\Profiling\PDO(new \PDO(
-    $dsn = 'slite:my-db.sqlite3',
+    $dsn = 'sqlite:my-db.sqlite3',
     $username = '',
     $password = '',
     $options = []
@@ -75,7 +75,7 @@ Use the provided reconnecting-pdo class with an extra `$ttl` constructor argumen
 
 ```php
 $pdo = new pine3ree\PDO\Reconnecting\PDO(
-    $dsn = 'slite:my-db.sqlite3',
+    $dsn = 'sqlite:my-db.sqlite3',
     $username = '',
     $password = '',
     $options = [],
